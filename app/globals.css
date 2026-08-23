@@ -1,0 +1,193 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #101010;
+
+  /* Brand */
+  --brand-navy: #17395a;
+  --brand-accent: #f9a11b;
+  --brand-accent-hover: #e08f0c;
+  --brand-muted: #a2a6ab;
+  --brand-footer-bg: #f1f5f8;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-navy: var(--brand-navy);
+  --color-accent: var(--brand-accent);
+  --color-accent-hover: var(--brand-accent-hover);
+  --color-muted: var(--brand-muted);
+  --color-footer: var(--brand-footer-bg);
+
+  --font-sans: var(--font-inter);
+  --font-nav: var(--font-oswald);
+  --font-headline: var(--font-anton);
+  --font-display: var(--font-bodoni);
+}
+
+/* Knocked-out display type: navy outline, no fill. The stroke is a fixed
+   pixel width rather than an em value so it stays hairline-crisp instead of
+   thickening in step with the headline as it scales up. */
+.text-outline-navy {
+  color: transparent;
+  -webkit-text-stroke: 2px var(--brand-navy);
+}
+
+@media (min-width: 768px) {
+  .text-outline-navy {
+    -webkit-text-stroke-width: 3px;
+  }
+}
+
+/* Card face with the top-right corner cut away. Applied to a border-coloured
+   wrapper and its inset face so the hairline follows the diagonal too. */
+.clip-notch {
+  clip-path: polygon(0 0, calc(100% - 44px) 0, 100% 44px, 100% 100%, 0 100%);
+}
+
+/* Horizontal rails are driven by their own controls, so the native bar is
+   hidden while the element stays scrollable (and keyboard/trackpad friendly). */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Scroll reveals -----------------------------------------------------
+   The hidden starting state ships in the server-rendered HTML; the
+   <Reveal> client component adds data-shown once the element scrolls into
+   view, which is what starts the animation. Only opacity, transform and
+   clip-path animate, so every reveal stays off the layout path.
+   `both` fill matters here: it holds the last frame rather than snapping
+   back to the hidden base rule once the animation ends. */
+
+@keyframes reveal-up {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 28px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes reveal-left {
+  from {
+    opacity: 0;
+    transform: translate3d(-26px, 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes reveal-rise {
+  from {
+    transform: translate3d(0, 105%, 0);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@keyframes reveal-wipe {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes reveal-settle {
+  from {
+    transform: scale(1.07);
+  }
+  to {
+    transform: none;
+  }
+}
+
+[data-reveal] {
+  --reveal-delay: 0ms;
+  /* A long, near-linear-out ease: quick to commit, slow to land. */
+  --reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+[data-reveal="up"] {
+  opacity: 0;
+  transform: translate3d(0, 28px, 0);
+}
+
+[data-reveal="up"][data-shown] {
+  animation: reveal-up 0.7s var(--reveal-ease) var(--reveal-delay) both;
+}
+
+[data-reveal="left"] {
+  opacity: 0;
+  transform: translate3d(-26px, 0, 0);
+}
+
+[data-reveal="left"][data-shown] {
+  animation: reveal-left 0.7s var(--reveal-ease) var(--reveal-delay) both;
+}
+
+/* The clip is what makes the slide read as type rising from behind a
+   ruled edge, so it has to sit on the wrapper, not the moving child. */
+[data-reveal="mask"] {
+  overflow: hidden;
+}
+
+[data-reveal="mask"] > * {
+  transform: translate3d(0, 105%, 0);
+}
+
+[data-reveal="mask"][data-shown] > * {
+  animation: reveal-rise 0.9s var(--reveal-ease) var(--reveal-delay) both;
+}
+
+/* The clip has to sit one level below the observed element, never on it:
+   Chrome folds a target's own clip-path into the rect it hands the
+   IntersectionObserver, so an element hidden this way reports zero
+   intersection and could never trigger the reveal that would show it.
+   Hence frame > face > child — the wrapper stays unclipped and visible to
+   the observer, the frame carries the wipe, the face carries the zoom. */
+[data-reveal="wipe"] > * {
+  clip-path: inset(0 0 100% 0);
+}
+
+[data-reveal="wipe"] > * > * {
+  transform: scale(1.07);
+}
+
+[data-reveal="wipe"][data-shown] > * {
+  animation: reveal-wipe 1s var(--reveal-ease) var(--reveal-delay) both;
+}
+
+[data-reveal="wipe"][data-shown] > * > * {
+  animation: reveal-settle 1.4s var(--reveal-ease) var(--reveal-delay) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal],
+  [data-reveal] > *,
+  [data-reveal] > * > * {
+    opacity: 1;
+    clip-path: none;
+    transform: none;
+    animation: none;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
