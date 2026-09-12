@@ -33,9 +33,8 @@ export const ADMIN_TIMEZONE =
 export const timezoneLabel = (timeZone = ADMIN_TIMEZONE) =>
   CANADA_TIMEZONES.find((zone) => zone.value === timeZone)?.label || timeZone;
 
-// The admins table has no name or photo column yet, so both fall back to the
-// site owner. The moment the API starts returning `name` / `avatarUrl` on the
-// admin object, the helpers below pick them up with no other change.
+// Falls back to the site owner until the admin sets their own name and photo
+// on the profile page.
 const FALLBACK_NAME = process.env.NEXT_PUBLIC_ADMIN_NAME || "Olamide";
 const FALLBACK_AVATAR = process.env.NEXT_PUBLIC_ADMIN_AVATAR || "/olamide.png";
 

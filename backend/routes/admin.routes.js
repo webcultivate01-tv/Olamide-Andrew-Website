@@ -7,6 +7,7 @@ import { requireAuth } from "../middleware/auth.middleware.js";
 import {
   handleCaseStudyImageUpload,
   handleBlogImageUpload,
+  handleAdminAvatarUpload,
 } from "../middleware/upload.middleware.js";
 import {
   validateBody,
@@ -32,6 +33,7 @@ import {
   updateBlogPostSchema,
   updateBlogPostStatusSchema,
 } from "../validators/blog-post.validator.js";
+import { updateProfileSchema, changePasswordSchema } from "../validators/admin.validator.js";
 
 // All routes here start with /api/admin
 const router = Router();
@@ -41,6 +43,21 @@ const router = Router();
 router.use(requireAuth);
 
 router.get("/profile", adminController.getProfile);
+
+router.patch(
+  "/profile",
+  validateBody(updateProfileSchema),
+  adminController.updateProfile
+);
+
+router.post("/profile/avatar", handleAdminAvatarUpload, adminController.uploadAvatar);
+
+router.patch(
+  "/password",
+  validateBody(changePasswordSchema),
+  adminController.changePassword
+);
+
 router.get("/dashboard", adminController.getDashboard);
 
 // Everything the dashboard's cards and charts read, in one response. Separate

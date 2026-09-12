@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { adminAvatar, adminInitials, adminName } from "@/lib/admin-config";
+import { mediaUrl } from "@/lib/api";
 
 /**
  * The signed-in admin's photo, always a circle.
@@ -22,7 +23,9 @@ export default function AdminAvatar({
   sizes = "256px",
   priority = false,
 }) {
-  const src = adminAvatar(admin);
+  // adminAvatar() falls back to a file already in the public folder if there
+  // is no uploaded photo; mediaUrl() only needs to touch the uploaded case.
+  const src = mediaUrl(adminAvatar(admin));
 
   return (
     <span

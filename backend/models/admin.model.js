@@ -38,12 +38,24 @@ export const createAdmin = async (email, passwordHash, role = "admin") => {
   return result.insertId;
 };
 
+// The profile page: a name, an email and a photo. Password lives behind its
+// own OTP-gated flow and is never touched here.
+export const updateProfile = async (id, { name, email, avatarUrl }) => {
+  const [result] = await pool.query(
+    "UPDATE admins SET name = ?, email = ?, avatar_url = ? WHERE id = ?",
+    [name, email, avatarUrl, id]
+  );
+  return result.affectedRows === 1;
+};
+
 // A database row holds password_hash, which must never be sent to the browser.
 // Controllers use this to pick out only the safe fields.
 export const publicAdmin = (admin) => {
   return {
     id: admin.id,
     email: admin.email,
+    name: admin.name,
+    avatarUrl: admin.avatar_url,
     role: admin.role,
   };
 };

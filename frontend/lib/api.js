@@ -73,6 +73,26 @@ export const logout = () => request("/api/auth/logout", { method: "POST" });
 
 export const getCurrentAdmin = () => request("/api/auth/me");
 
+// Profile ----------------------------------------------------------------
+
+export const updateProfile = (profile) =>
+  request("/api/admin/profile", { method: "PATCH", body: profile });
+
+// Stores the file and answers with the path to save on the profile. Uploaded
+// as soon as it is chosen, same as a case study or blog cover image.
+export const uploadAvatar = (file) => {
+  const form = new FormData();
+  form.append("image", file);
+
+  return request("/api/admin/profile/avatar", { method: "POST", body: form });
+};
+
+export const changePassword = ({ newPassword, confirmPassword }) =>
+  request("/api/admin/password", {
+    method: "PATCH",
+    body: { newPassword, confirmPassword },
+  });
+
 export const forgotPassword = (email) =>
   request("/api/auth/forgot-password", { method: "POST", body: { email } });
 

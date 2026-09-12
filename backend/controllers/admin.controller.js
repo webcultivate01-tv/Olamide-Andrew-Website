@@ -1,3 +1,5 @@
+import fs from "node:fs/promises";
+import path from "node:path";
 import * as adminModel from "../models/admin.model.js";
 import * as enquiryModel from "../models/enquiry.model.js";
 import * as caseStudyModel from "../models/case-study.model.js";
@@ -5,7 +7,10 @@ import * as blogModel from "../models/blog-post.model.js";
 import { ENQUIRY_STATUSES } from "../models/enquiry.model.js";
 import { CASE_STUDY_STATUSES } from "../models/case-study.model.js";
 import { BLOG_POST_STATUSES } from "../models/blog-post.model.js";
+import { adminUploadsDir } from "../middleware/upload.middleware.js";
+import { hashPassword } from "../utils/password.js";
 import { sendSuccess } from "../utils/response.js";
+import { AppError } from "../utils/app-error.js";
 
 // Admin endpoints. These all sit behind requireAuth, which has already put the
 // logged in admin's row on req.admin.
@@ -34,6 +39,103 @@ export const getProfile = async (req, res, next) => {
         createdAt: req.admin.created_at,
       },
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Only a photo this API wrote is ever deleted, and only one that is really
+// inside the admin uploads folder - the same reasoning as the case study and
+// blog image cleanup.
+const removeUploadedAvatar = async (avatarUrl) => {
+  if (!avatarUrl || !avatarUrl.startsWith("/uploads/admins/")) return;
+
+  const filename = path.basename(avatarUrl);
+  const target = path.resolve(adminUploadsDir, filename);
+
+  if (path.dirname(target) !== path.resolve(adminUploadsDir)) return;
+
+  await fs.unlink(target).catch(() => {});
+};
+
+// PATCH /api/admin/profile
+export const updateProfile = async (req, res, next) => {
+  try {
+    const { name, email, avatarUrl } = req.body;
+
+    if (email !== req.admin.email) {
+      const existing = await adminModel.findByEmail(email);
+      if (existing && existing.id !== req.admin.id) {
+        throw new AppError("That email address is already in use.", 409);
+      }
+    }
+
+    const previousAvatarUrl = req.admin.avatar_url;
+
+    await adminModel.updateProfile(req.admin.id, {
+      name,
+      email,
+      avatarUrl: avatarUrl !== undefined ? avatarUrl : previousAvatarUrl,
+    });
+
+    // The photo was replaced or removed, so the old file is orphaned. Clean it
+    // up after the row is safely saved, never before.
+    if (avatarUrl !== undefined && avatarUrl !== previousAvatarUrl) {
+      await removeUploadedAvatar(previousAvatarUrl);
+    }
+
+    const admin = await adminModel.findById(req.admin.id);
+
+    return sendSuccess(res, 200, "Profile saved.", {
+      admin: {
+        ...adminModel.publicAdmin(admin),
+        isActive: Boolean(admin.is_active),
+        createdAt: admin.created_at,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// POST /api/admin/profile/avatar
+//
+// Returns the path to store, not the file. The form saves that path with the
+// rest of the profile, the same way a case study's image upload works.
+export const uploadAvatar = async (req, res, next) => {
+  try {
+    if (!req.file) {
+      throw new AppError("Please choose an image to upload.", 400);
+    }
+
+    return sendSuccess(res, 201, "Photo uploaded.", {
+      avatarUrl: `/uploads/admins/${req.file.filename}`,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// PATCH /api/admin/password
+//
+// Lets the signed-in admin set a new password directly from the profile page,
+// without going through the emailed OTP - they already proved who they are by
+// being logged in. The session cookie is left alone, so the popup can close
+// and leave them right where they were.
+export const changePassword = async (req, res, next) => {
+  try {
+    const { newPassword, confirmPassword } = req.body;
+
+    if (newPassword !== confirmPassword) {
+      throw new AppError("Passwords do not match.", 400, {
+        confirmPassword: "Passwords do not match.",
+      });
+    }
+
+    const passwordHash = await hashPassword(newPassword);
+    await adminModel.updatePassword(req.admin.id, passwordHash);
+
+    return sendSuccess(res, 200, "Password updated.");
   } catch (error) {
     next(error);
   }

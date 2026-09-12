@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { adminName, adminRole } from "@/lib/admin-config";
+import { adminName } from "@/lib/admin-config";
 import { loadAdminSession } from "@/lib/server-api";
 import AdminShell from "../_components/admin-shell";
 import AdminAvatar from "../_components/admin-avatar";
 import LocalTime from "../_components/local-time";
+import ChangePasswordModal from "./_components/change-password-modal";
 
 export const metadata = {
   title: "Profile — Admin",
@@ -19,60 +20,62 @@ export default async function ProfilePage() {
     redirect("/admin/login");
   }
 
+  const editButton = (
+    <Link
+      href="/admin/profile/edit"
+      className="font-nav inline-block bg-navy px-6 py-3 text-xs font-bold tracking-[0.08em] text-white uppercase transition-colors hover:bg-navy/90"
+    >
+      Edit profile
+    </Link>
+  );
+
   return (
     <AdminShell
       admin={admin}
       stats={stats}
       title="Profile"
       description="The account you are signed in with."
+      actions={editButton}
     >
-      <div className="flex flex-wrap items-center gap-5 rounded-2xl border border-black/10 bg-white p-6 md:p-8">
-        <AdminAvatar admin={admin} className="h-20 w-20 md:h-24 md:w-24" />
+      <div className="flex flex-wrap items-center gap-4 rounded-2xl border border-black/10 bg-white p-4 md:p-5">
+        <AdminAvatar admin={admin} className="h-14 w-14 md:h-16 md:w-16" />
         <div className="min-w-0">
-          <p className="font-headline text-2xl tracking-tight text-navy uppercase md:text-3xl">
+          <p className="font-headline text-xl tracking-tight text-navy uppercase md:text-2xl">
             {adminName(admin)}
           </p>
-          <p className="font-nav mt-1 text-[0.7rem] font-bold tracking-[0.2em] text-muted uppercase">
-            {adminRole(admin)}
-          </p>
-          <p className="mt-2 text-sm break-words text-black/60">{admin.email}</p>
+          <p className="mt-1 text-sm break-words text-black/60">{admin.email}</p>
         </div>
       </div>
 
-      <dl className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <dl className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {[
+          { label: "Name", value: adminName(admin) },
           { label: "Email", value: admin.email },
-          { label: "Role", value: admin.role },
           { label: "Status", value: account.isActive ? "Active" : "Disabled" },
           {
             label: "Member since",
             value: <LocalTime value={account.createdAt} withTime />,
           },
         ].map((item) => (
-          <div key={item.label} className="rounded-2xl border border-black/10 bg-white p-6">
+          <div key={item.label} className="rounded-2xl border border-black/10 bg-white p-4">
             <dt className="font-nav text-xs font-bold tracking-[0.18em] text-muted uppercase">
               {item.label}
             </dt>
-            <dd className="mt-3 text-lg font-semibold break-words text-foreground">
+            <dd className="mt-1.5 text-base font-semibold break-words text-foreground">
               {item.value}
             </dd>
           </div>
         ))}
       </dl>
 
-      <div className="mt-6 rounded-2xl border border-black/10 bg-white p-6 md:p-8">
-        <h2 className="font-headline text-2xl tracking-tight text-navy uppercase">Password</h2>
-        <p className="mt-3 max-w-[60ch] text-sm leading-relaxed text-black/60">
-          Passwords are changed through the emailed one-time code, the same way
-          a forgotten one is reset. That keeps a stolen session from being
-          enough on its own to lock the real owner out of the account.
-        </p>
-        <Link
-          href="/admin/forgot-password"
-          className="font-nav mt-6 inline-block border border-black/15 px-5 py-2.5 text-sm font-bold tracking-[0.02em] text-navy uppercase transition-colors hover:bg-navy hover:text-white"
-        >
-          Change password
-        </Link>
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-black/10 bg-white p-4 md:p-5">
+        <div className="min-w-0">
+          <h2 className="font-headline text-xl tracking-tight text-navy uppercase">Password</h2>
+          <p className="mt-1 max-w-[60ch] text-sm leading-snug text-black/60">
+            Set a new password for your account.
+          </p>
+        </div>
+        <ChangePasswordModal />
       </div>
     </AdminShell>
   );
