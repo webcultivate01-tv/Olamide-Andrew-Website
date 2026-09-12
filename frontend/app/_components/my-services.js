@@ -55,7 +55,7 @@ export default function MyServices() {
           service has nowhere to pin and the pinned ones behind it reappear.
           Neither the runway nor the gaps between stacked cards apply at the
           other breakpoint, hence the pair of one-sided spacing rules. */}
-      <div className="relative mt-9 flex flex-col gap-12 md:mt-16 lg:block lg:pb-[calc(100svh_-_7rem)]">
+      <div className="relative mt-9 flex flex-col gap-12 md:mt-16 lg:block">
         {SERVICES.map((service, index) => (
           <Fragment key={service.title}>
             <div

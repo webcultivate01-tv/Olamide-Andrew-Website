@@ -4,9 +4,9 @@ import Link from "next/link";
 // The rail deliberately runs past the right edge of the page — the third tile
 // is meant to be cut off, signalling there is more to scroll to.
 const WORK = [
-  { src: "/work/produce.jpg", alt: "Grocery retail brand rollout" },
-  { src: "/work/acg.jpg", alt: "ACG identity applied to haulage livery" },
-  { src: "/work/cap.jpg", alt: "Embroidered brand merchandise" },
+  { src: "/case-studies/Atlas.png", alt: "Grocery retail brand rollout" },
+  { src: "/case-studies/Skyline.png", alt: "ACG identity applied to haulage livery" },
+  { src: "/case-studies/Patches.png", alt: "Embroidered brand merchandise" },
 ];
 
 export default function HomeHero() {
@@ -45,22 +45,24 @@ export default function HomeHero() {
       {/* Full-bleed rail: the padding lives on the row itself so the first tile
           lines up with the headline while the last one runs off-screen. */}
       <div className="no-scrollbar mt-12 overflow-x-auto pb-14 md:mt-14 md:pb-20 lg:pb-24">
-        <div className="flex w-max gap-6 px-5 md:px-10 lg:px-20">
-          {WORK.map((item) => (
-            <div
-              key={item.src}
-              className="relative aspect-[588/570] w-[280px] shrink-0 overflow-hidden rounded-lg bg-black/[.06] sm:w-[380px] lg:w-[588px]"
-            >
-              <Image
-                src={item.src}
-                alt={item.alt}
-                fill
-                priority
-                sizes="(min-width: 1024px) 588px, (min-width: 640px) 380px, 280px"
-                className="object-cover"
-              />
-            </div>
-          ))}
+        <div className="mx-auto max-w-[1600px]">
+          <div className="flex w-max gap-6 px-5 md:px-10 lg:px-20">
+            {WORK.map((item) => (
+              <div
+                key={item.src}
+                className="relative aspect-[588/570] w-[280px] shrink-0 overflow-hidden rounded-lg bg-black/[.06] sm:w-[380px] lg:w-[588px]"
+              >
+                <Image
+                  src={item.src}
+                  alt={item.alt}
+                  fill
+                  priority
+                  sizes="(min-width: 1024px) 588px, (min-width: 640px) 380px, 280px"
+                  className="object-cover"
+                />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>

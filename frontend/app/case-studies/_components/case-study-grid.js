@@ -2,6 +2,13 @@ import Image from "next/image";
 import { mediaUrl } from "@/lib/api";
 import Reveal from "../../components/reveal";
 
+const STATIC_STUDIES = [
+  { id: "patches",  src: "/case-studies/Patches.png",  title: "Patches",                   summary: "" },
+  { id: "skyline",  src: "/case-studies/Skyline.png",  title: "Skyline Finance",            summary: "" },
+  { id: "lumina",   src: "/case-studies/Lumina.png",   title: "Lumina Wellness",            summary: "" },
+  { id: "atlas",    src: "/case-studies/Atlas.png",    title: "Atlas Construction Group",   summary: "" },
+];
+
 /**
  * The portfolio grid.
  *
@@ -42,7 +49,7 @@ export default function CaseStudyGrid({ studies = [] }) {
         </Reveal>
 
         <div className="mt-12 grid gap-x-5 gap-y-11 sm:grid-cols-2 md:mt-16 lg:mt-20">
-          {visible.map((study, index) => (
+          {(visible.length ? visible : STATIC_STUDIES).map((study, index) => (
             <article key={study.id}>
               {/* The notch and the rounding are cut here rather than baked into
                   the photo, so any replacement crop picks up the same shape.
@@ -62,12 +69,8 @@ export default function CaseStudyGrid({ studies = [] }) {
                           the API's origin, an original launch image in this
                           site's own public folder. */}
                       <Image
-                        src={mediaUrl(study.imageUrl)}
-                        // Empty rather than missing when the admin left it
-                        // blank: an invented description would be worse than
-                        // none, and this marks the image as decorative instead
-                        // of having a screen reader read out a filename.
-                        alt={study.imageAlt || ""}
+                        src={study.src ?? mediaUrl(study.imageUrl)}
+                        alt={study.imageAlt || study.title || ""}
                         fill
                         sizes="(min-width: 1600px) 710px, (min-width: 640px) 50vw, 100vw"
                         className="object-cover"
