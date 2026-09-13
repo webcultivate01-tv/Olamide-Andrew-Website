@@ -64,3 +64,12 @@ export const enquiryLimiter = createLimiter({
   max: 5,
   message: "Too many enquiries sent from this connection. Please try again in a little while.",
 });
+
+// The public newsletter signup. Looser than the enquiry limiter - signing up
+// is a one-field form someone might retry after a typo - but still capped, so
+// it cannot be used to flood the subscribers table.
+export const subscribeLimiter = createLimiter({
+  minutes: 15,
+  max: 10,
+  message: "Too many signup attempts from this connection. Please try again in a little while.",
+});

@@ -8,6 +8,8 @@ import adminRoutes from "./routes/admin.routes.js";
 import enquiryRoutes from "./routes/enquiry.routes.js";
 import caseStudyRoutes from "./routes/case-study.routes.js";
 import blogRoutes from "./routes/blog.routes.js";
+import categoryRoutes from "./routes/category.routes.js";
+import subscriberRoutes from "./routes/subscriber.routes.js";
 import { uploadsDir } from "./middleware/upload.middleware.js";
 import { globalLimiter } from "./middleware/rateLimit.middleware.js";
 import { notFoundHandler, errorHandler } from "./middleware/error.middleware.js";
@@ -86,6 +88,14 @@ app.use("/api/case-studies", caseStudyRoutes);
 // Public: the website's blog reads from here. Published posts only -
 // everything that writes one lives on the admin router below.
 app.use("/api/blog", blogRoutes);
+
+// Public: the blog page's category filter reads from here. Everything that
+// adds, renames or removes a category lives on the admin router below.
+app.use("/api/categories", categoryRoutes);
+
+// Public: the newsletter signup on the blog page posts here. Reading and
+// deleting subscribers both live on the admin router below.
+app.use("/api/subscribers", subscriberRoutes);
 
 app.use("/api/admin", adminRoutes);
 

@@ -1,4 +1,5 @@
 import ArrowUpRight from "../../components/arrow-up-right";
+import Reveal from "../../components/reveal";
 
 const EMAIL = "ishola826@gmail.com";
 
@@ -16,8 +17,12 @@ export default function LetsWorkCta() {
           the two lines is roughly (leading - 0.71)em. 1.08 leaves a clear band
           of white between LETS WORK and TOGETHER. */}
       <h1 className="font-headline text-[3.25rem] leading-[1.08] tracking-[-0.01em] uppercase sm:text-[5rem] md:text-[6rem] lg:text-[7.5rem]">
-        <span className="block text-foreground">Lets Work</span>
-        <span className="text-outline-navy block">Together</span>
+        <Reveal as="span" variant="left" className="block text-foreground">
+          Lets Work
+        </Reveal>
+        <Reveal as="span" variant="right" delay={120} className="text-outline-navy block">
+          Together
+        </Reveal>
       </h1>
 
       <p className="mt-8 text-lg text-foreground md:mt-10 md:text-xl">

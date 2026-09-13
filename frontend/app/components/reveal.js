@@ -13,11 +13,15 @@ import { useEffect, useRef, useState } from "react";
 //   up    — the element fades and lifts into place.
 //   left  — the element fades in from the left. For list rows that should
 //           read as a different gesture from the prose around them.
+//   right — the mirror of left, fades in from the right. Pairs with left
+//           on two-line headlines so the lines converge from opposite sides.
 //   mask  — the element clips its own overflow and its child slides up
 //           from behind the bottom edge. Built for single blocks of
 //           display type; the child must be one element.
 //   wipe  — a top-to-bottom clip reveal with the child easing out of a
 //           slight zoom. Built for images.
+//   roll  — a 3D tip-up on the element's own bottom edge (rotateX +
+//           translate), for a modern "rolling" entrance on cards/blocks.
 
 // One observer for the whole page rather than one per element. Each target
 // carries its own callback in the map and is dropped the moment it fires,

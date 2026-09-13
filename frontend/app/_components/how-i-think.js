@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import Reveal from "../components/reveal";
 
 const STEPS = [
   {
@@ -98,9 +99,13 @@ export default function HowIThink() {
 
   return (
     <section className="overflow-hidden py-16 md:py-20 lg:py-24">
-      <h2 className="font-headline mx-auto max-w-[1600px] px-5 text-center text-[2.25rem] leading-[1.05] tracking-[-0.01em] text-foreground uppercase md:px-10 md:text-[3.5rem] lg:px-20 lg:text-[4.75rem]">
+      <Reveal
+        as="h2"
+        variant="up"
+        className="font-headline mx-auto max-w-[1600px] px-5 text-center text-[2.25rem] leading-[1.05] tracking-[-0.01em] text-foreground uppercase md:px-10 md:text-[3.5rem] lg:px-20 lg:text-[4.75rem]"
+      >
         See how I think
-      </h2>
+      </Reveal>
 
       {/* On mobile the steps are a plain vertical stack of full-width cards.
           From md up it becomes a full-bleed rail: padding sits on the row so
@@ -112,11 +117,13 @@ export default function HowIThink() {
         className="no-scrollbar mt-10 md:mt-16 md:overflow-x-auto"
       >
         <div className="flex flex-col gap-5 px-5 md:w-max md:flex-row md:items-stretch md:gap-6 md:px-10 lg:px-20">
-          {STEPS.map((item) => (
+          {STEPS.map((item, index) => (
             // Hairline border that follows the notch: the outer layer is the
             // border colour, the inner one is the card face inset by 1px.
-            <div
+            <Reveal
               key={item.title}
+              variant="up"
+              delay={(index % 3) * 100}
               className="clip-notch w-full bg-black/15 p-px md:w-[360px] md:shrink-0 lg:w-[416px]"
             >
               <div className="clip-notch flex h-full min-h-[340px] flex-col bg-white p-7 pt-9 lg:min-h-[392px] lg:p-8 lg:pt-11">
@@ -132,7 +139,7 @@ export default function HowIThink() {
                   {item.body}
                 </p>
               </div>
-            </div>
+            </Reveal>
           ))}
         </div>
       </div>

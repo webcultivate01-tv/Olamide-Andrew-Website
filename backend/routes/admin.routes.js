@@ -3,6 +3,8 @@ import * as adminController from "../controllers/admin.controller.js";
 import * as enquiryController from "../controllers/enquiry.controller.js";
 import * as caseStudyController from "../controllers/case-study.controller.js";
 import * as blogController from "../controllers/blog-post.controller.js";
+import * as categoryController from "../controllers/category.controller.js";
+import * as subscriberController from "../controllers/subscriber.controller.js";
 import { requireAuth } from "../middleware/auth.middleware.js";
 import {
   handleCaseStudyImageUpload,
@@ -34,6 +36,17 @@ import {
   updateBlogPostStatusSchema,
 } from "../validators/blog-post.validator.js";
 import { updateProfileSchema, changePasswordSchema } from "../validators/admin.validator.js";
+import {
+  listCategoriesSchema,
+  categoryIdSchema,
+  createCategorySchema,
+  updateCategorySchema,
+} from "../validators/category.validator.js";
+import {
+  listSubscribersSchema,
+  exportSubscribersSchema,
+  subscriberIdSchema,
+} from "../validators/subscriber.validator.js";
 
 // All routes here start with /api/admin
 const router = Router();
@@ -177,5 +190,55 @@ router.patch(
 );
 
 router.delete("/blog/:id", validateParams(blogPostIdSchema), blogController.deletePost);
+
+// Categories ------------------------------------------------------------------
+
+router.get(
+  "/categories",
+  validateQuery(listCategoriesSchema),
+  categoryController.listCategories
+);
+
+router.post(
+  "/categories",
+  validateBody(createCategorySchema),
+  categoryController.createCategory
+);
+
+router.patch(
+  "/categories/:id",
+  validateParams(categoryIdSchema),
+  validateBody(updateCategorySchema),
+  categoryController.updateCategory
+);
+
+router.delete(
+  "/categories/:id",
+  validateParams(categoryIdSchema),
+  categoryController.deleteCategory
+);
+
+// Subscribers -----------------------------------------------------------------
+
+router.get(
+  "/subscribers",
+  validateQuery(listSubscribersSchema),
+  subscriberController.listSubscribers
+);
+
+// Declared before /subscribers/:id would be if there were one - there isn't,
+// but every other route file in this API keeps a fixed segment ahead of a
+// dynamic one for the same reason, so this follows suit.
+router.get(
+  "/subscribers/export",
+  validateQuery(exportSubscribersSchema),
+  subscriberController.exportSubscribers
+);
+
+router.delete(
+  "/subscribers/:id",
+  validateParams(subscriberIdSchema),
+  subscriberController.deleteSubscriber
+);
 
 export default router;

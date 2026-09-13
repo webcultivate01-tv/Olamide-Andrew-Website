@@ -5,6 +5,15 @@ import { fileURLToPath } from "node:url";
 import { hashPassword } from "../utils/password.js";
 import { CASE_STUDIES } from "../database/seed/case-studies.data.js";
 
+// The same three categories database/seed/categories.seed.js inserts, so the
+// blog page's category filter is not empty when the panel is run against
+// SQLite.
+const CATEGORIES = [
+  { name: "Brand Strategy", slug: "brand-strategy" },
+  { name: "Visual Identity", slug: "visual-identity" },
+  { name: "Brand Activation", slug: "brand-activation" },
+];
+
 // A stand-in for config/db.js, backed by the SQLite that ships inside Node.
 //
 // This machine has no MySQL server, so nothing in backend/ that touches the
@@ -58,22 +67,41 @@ const toSqliteDdl = (sql, table) => {
   return [out, ...indexes].join("\n");
 };
 
+// "ALTER TABLE x ADD COLUMN a T, ADD COLUMN b T" - SQLite, unlike MySQL,
+// takes one column per ALTER TABLE statement and has no AFTER placement
+// clause, so each addition becomes its own statement with that clause gone.
+const toSqliteAlter = (sql, table) => {
+  const additions = sql
+    .replace(/^\s*(?:--[^\n]*\n\s*)*ALTER TABLE\s+\w+\s*/i, "")
+    .replace(/;\s*$/, "")
+    .split(/,\s*(?=ADD\s+COLUMN)/i);
+
+  return additions.map(
+    (addition) => `ALTER TABLE ${table} ${addition.trim().replace(/\s+AFTER\s+\w+/i, "")};`
+  );
+};
+
 const applyMigrations = () => {
   const files = fs.readdirSync(migrationsDir).filter((file) => file.endsWith(".sql")).sort();
 
   for (const file of files) {
     const sql = fs.readFileSync(path.join(migrationsDir, file), "utf8");
-    const table = sql.match(/CREATE TABLE IF NOT EXISTS\s+(\w+)/i)?.[1];
+    const createTable = sql.match(/CREATE TABLE IF NOT EXISTS\s+(\w+)/i)?.[1];
+    const alterTable = sql.match(/ALTER TABLE\s+(\w+)/i)?.[1];
 
-    if (!table) {
+    if (createTable) {
+      db.exec(toSqliteDdl(sql, createTable));
+    } else if (alterTable) {
+      for (const statement of toSqliteAlter(sql, alterTable)) {
+        db.exec(statement);
+      }
+    } else {
       throw new Error(`Cannot find the table name in migration ${file}`);
     }
-
-    db.exec(toSqliteDdl(sql, table));
   }
 
   // MySQL's ON UPDATE CURRENT_TIMESTAMP, written out by hand.
-  for (const table of ["admins", "enquiries", "case_studies", "blog_posts"]) {
+  for (const table of ["admins", "enquiries", "case_studies", "blog_posts", "categories"]) {
     db.exec(`
       CREATE TRIGGER IF NOT EXISTS ${table}_updated_at
       AFTER UPDATE ON ${table}
@@ -126,9 +154,25 @@ const seedCaseStudies = () => {
   }
 };
 
+// The same three categories database/seed/categories.seed.js inserts.
+const seedCategories = () => {
+  for (const category of CATEGORIES) {
+    const existing = db.prepare("SELECT id FROM categories WHERE slug = ?").get(category.slug);
+    if (existing) continue;
+
+    db.prepare("INSERT INTO categories (name, slug) VALUES (?, ?)").run(
+      category.name,
+      category.slug
+    );
+
+    console.log(`[sqlite] seeded category ${category.slug}`);
+  }
+};
+
 applyMigrations();
 await seedAdmin();
 seedCaseStudies();
+seedCategories();
 
 // ---------------------------------------------------------------------------
 // Queries

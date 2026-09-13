@@ -61,6 +61,23 @@ function BlogIcon({ className }) {
   );
 }
 
+function CategoriesIcon({ className }) {
+  return (
+    <svg {...iconProps} className={className}>
+      <path d="M4 5.5A1.5 1.5 0 0 1 5.5 4h4l2 2.5h8A1.5 1.5 0 0 1 21 8v10.5A1.5 1.5 0 0 1 19.5 20h-15A1.5 1.5 0 0 1 3 18.5v-13Z" />
+    </svg>
+  );
+}
+
+function SubscribersIcon({ className }) {
+  return (
+    <svg {...iconProps} className={className}>
+      <path d="M3 6.5A1.5 1.5 0 0 1 4.5 5h15A1.5 1.5 0 0 1 21 6.5v11a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5z" />
+      <path d="m3.8 6.5 7.1 5.2a2 2 0 0 0 2.2 0l7.1-5.2" />
+    </svg>
+  );
+}
+
 function ProfileIcon({ className }) {
   return (
     <svg {...iconProps} className={className}>
@@ -93,6 +110,16 @@ export const NAV_SECTIONS = [
         href: "/admin/blog",
         label: "Blog",
         icon: BlogIcon,
+      },
+      {
+        href: "/admin/categories",
+        label: "Categories",
+        icon: CategoriesIcon,
+      },
+      {
+        href: "/admin/subscribers",
+        label: "Subscribers",
+        icon: SubscribersIcon,
       },
     ],
   },

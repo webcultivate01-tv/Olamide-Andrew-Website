@@ -93,41 +93,46 @@ export default function SiteHeader() {
         </button>
       </div>
 
-      {open && (
-        <nav
-          id="mobile-nav"
-          aria-label="Primary mobile"
-          className="border-t border-black/10 bg-white px-5 py-6 md:hidden"
-        >
-          <ul className="flex flex-col gap-5">
-            {NAV_LINKS.map((link) => (
-              <li key={link.href}>
-                <Link
-                  href={link.href}
-                  onClick={() => setOpen(false)}
-                  aria-current={
-                    isActive(pathname, link.href) ? "page" : undefined
-                  }
-                  className={`font-nav text-xl font-bold uppercase tracking-[0.02em] ${
-                    isActive(pathname, link.href) ? "text-navy" : "text-muted"
-                  }`}
-                >
-                  {link.label}
-                </Link>
-              </li>
-            ))}
-            <li className="pt-2">
+      <nav
+        id="mobile-nav"
+        aria-label="Primary mobile"
+        aria-hidden={!open}
+        className={`absolute inset-x-0 top-full border-t border-black/10 bg-white px-5 py-6 shadow-lg transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] md:hidden ${
+          open
+            ? "translate-y-0 opacity-100"
+            : "pointer-events-none -translate-y-6 opacity-0"
+        }`}
+      >
+        <ul className="flex flex-col gap-5">
+          {NAV_LINKS.map((link) => (
+            <li key={link.href}>
               <Link
-                href={CTA.href}
+                href={link.href}
+                tabIndex={open ? undefined : -1}
                 onClick={() => setOpen(false)}
-                className="font-nav inline-block bg-accent px-6 py-3 text-lg font-bold uppercase tracking-[0.02em] text-black"
+                aria-current={
+                  isActive(pathname, link.href) ? "page" : undefined
+                }
+                className={`font-nav text-xl font-bold uppercase tracking-[0.02em] ${
+                  isActive(pathname, link.href) ? "text-navy" : "text-muted"
+                }`}
               >
-                {CTA.label}
+                {link.label}
               </Link>
             </li>
-          </ul>
-        </nav>
-      )}
+          ))}
+          <li className="pt-2">
+            <Link
+              href={CTA.href}
+              tabIndex={open ? undefined : -1}
+              onClick={() => setOpen(false)}
+              className="font-nav inline-block bg-accent px-6 py-3 text-lg font-bold uppercase tracking-[0.02em] text-black"
+            >
+              {CTA.label}
+            </Link>
+          </li>
+        </ul>
+      </nav>
     </header>
   );
 }

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Reveal from "../components/reveal";
 
 // 16-spike burst, drawn once at module scope so the geometry is not recomputed
 // per render. Alternating outer/inner radius around a 100×100 box.
@@ -12,7 +13,7 @@ const BURST_POINTS = Array.from({ length: 32 }, (_, i) => {
 }).join(" ");
 
 const HEADLINE =
-  "font-headline text-[1.75rem] leading-[1.1] tracking-[-0.01em] text-foreground uppercase sm:text-[2.75rem] md:text-[3.5rem] lg:text-[4.25rem]";
+  "font-headline text-[1.75rem] leading-[96px] tracking-[-0.01em] text-foreground uppercase sm:text-[2.75rem] md:text-[3.5rem] lg:text-[4.25rem]";
 
 // The narrow measure is doing layout work: it holds each sub-line to the
 // two-line break the design calls for.
@@ -36,32 +37,54 @@ export default function BrandMessage() {
   // without clipping it pushes the page sideways on narrow screens.
   return (
     <section className="mx-auto max-w-[1600px] overflow-hidden px-5 py-20 text-center md:px-10 md:py-28 lg:px-20">
-      <h2 className={`mx-auto max-w-[980px] ${HEADLINE}`}>
-        Every brand sends a message. Is yours sending the right one?
-      </h2>
-      <p className={SUBLINE}>
+      <Reveal
+        as="h2"
+        variant="up"
+        className={`mx-auto max-w-[980px] lg:flex lg:h-[163px] lg:w-[1280px] lg:max-w-none lg:flex-col lg:items-center lg:justify-center ${HEADLINE}`}
+      >
+        <span className="block">Every brand sends a message. Is</span>
+        <span className="block">yours sending the right one?</span>
+      </Reveal>
+      <Reveal as="p" variant="up" delay={120} className={SUBLINE}>
         Your brand shapes perception before you ever have the chance to.
-      </p>
+      </Reveal>
 
       <div className="mt-28 md:mt-48">
-        <h2 className={`mx-auto max-w-[820px] ${HEADLINE}`}>
+        <Reveal
+          as="h2"
+          variant="up"
+          className={`mx-auto max-w-[820px] lg:flex lg:h-[163px] lg:w-[860px] lg:max-w-none lg:items-center lg:justify-center ${HEADLINE}`}
+        >
           Good design does not build great brands
-        </h2>
+        </Reveal>
         {/* The burst is positioned in em units off this line, so it tracks the
-            headline as the type scales instead of drifting. */}
-        <p className="font-headline relative mx-auto mt-3 inline-block text-[1.5rem] leading-none tracking-[0.12em] text-outline-navy uppercase sm:text-[2.25rem] md:text-[3rem] lg:text-[3.75rem]">
+            headline as the type scales instead of drifting. The top margin
+            is set to HEADLINE's leading (96px) minus its own font size at
+            each breakpoint, so the gap here matches the gap the headline's
+            own leading creates between its two lines. */}
+        <Reveal
+          as="p"
+          variant="up"
+          delay={120}
+          className="font-headline relative mx-auto mt-[4.25rem] inline-block text-[1.5rem] leading-[1.1] tracking-[0.12em] text-outline-navy uppercase sm:mt-[3.25rem] sm:text-[2.25rem] md:mt-[2.5rem] md:text-[3rem] lg:mt-[1.75rem] lg:text-[3.75rem]"
+        >
           Strategy does!
           <Burst />
-        </p>
+        </Reveal>
       </div>
 
       <div className="mt-28 md:mt-48">
-        <h2 className={`mx-auto max-w-[760px] ${HEADLINE}`}>
+        <Reveal as="h2" variant="up" className={`mx-auto max-w-[760px] ${HEADLINE}`}>
           Your brand should communicate your value before you do.
-        </h2>
-        <p className={SUBLINE}>
+        </Reveal>
+        <Reveal
+          as="p"
+          variant="up"
+          delay={120}
+          className={SUBLINE.replace("leading-relaxed", "leading-[40px]")}
+        >
           Build trust before the first conversation begins.
-        </p>
+        </Reveal>
 
         <Link
           href="/case-studies"

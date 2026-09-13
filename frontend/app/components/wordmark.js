@@ -1,4 +1,4 @@
-// Mixed-weight "OLAMIDE" lockup.
+// Mixed-weight "OLAMIDE" lockup, drawn to match the reference design.
 //
 // The glyphs are squeezed to exactly fill the viewBox width via
 // textLength + lengthAdjust="spacingAndGlyphs", which is what gives the
@@ -12,10 +12,10 @@
 // clip against the top of the viewBox.
 const LETTERS = [
   { char: "O", weight: 400 },
-  { char: "L", weight: 400 },
+  { char: "L", weight: 900 },
   { char: "A", weight: 900 },
   { char: "M", weight: 900 },
-  { char: "I", weight: 900 },
+  { char: "I", weight: 400 },
   { char: "D", weight: 700 },
   { char: "E", weight: 400 },
 ];

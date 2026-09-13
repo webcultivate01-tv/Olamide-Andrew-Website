@@ -269,6 +269,82 @@ export const POST_STATUSES = [
 export const postStatusLabel = (value) =>
   POST_STATUSES.find((status) => status.value === value)?.label || value;
 
+// Categories -------------------------------------------------------------
+
+// Everything below needs an admin session, which travels in the cookie.
+// There is no public endpoint - categories are an admin-only list, the same
+// way tags have no endpoint of their own either.
+
+export const getCategories = ({ search = "" } = {}) => {
+  const query = new URLSearchParams();
+  if (search) query.set("search", search);
+  const qs = query.toString();
+
+  return request(`/api/admin/categories${qs ? `?${qs}` : ""}`);
+};
+
+export const createCategory = (category) =>
+  request("/api/admin/categories", { method: "POST", body: category });
+
+export const updateCategory = (id, category) =>
+  request(`/api/admin/categories/${id}`, { method: "PATCH", body: category });
+
+export const deleteCategory = (id) =>
+  request(`/api/admin/categories/${id}`, { method: "DELETE" });
+
+// Subscribers ------------------------------------------------------------
+
+// Public. The newsletter form on the blog page posts here; no session
+// involved.
+export const subscribe = (email) =>
+  request("/api/subscribers", { method: "POST", body: { email } });
+
+// Everything below needs an admin session, which travels in the cookie.
+
+export const getSubscribers = ({ page = 1, perPage = 20, search = "", month = "" } = {}) => {
+  const query = new URLSearchParams({ page, perPage });
+  if (search) query.set("search", search);
+  if (month) query.set("month", month);
+
+  return request(`/api/admin/subscribers?${query}`);
+};
+
+export const deleteSubscriber = (id) =>
+  request(`/api/admin/subscribers/${id}`, { method: "DELETE" });
+
+// Downloads a PDF instead of a JSON envelope, so it talks to fetch directly
+// rather than going through request(). Same filters as the list, no paging -
+// the caller gets every matching row in one file.
+export const exportSubscribers = async ({ search = "", month = "" } = {}) => {
+  const query = new URLSearchParams();
+  if (search) query.set("search", search);
+  if (month) query.set("month", month);
+
+  let response;
+  try {
+    response = await fetch(`${API_URL}/api/admin/subscribers/export?${query}`, {
+      credentials: "include",
+    });
+  } catch {
+    throw new ApiError(
+      "Could not reach the server. Please check your connection and try again."
+    );
+  }
+
+  if (!response.ok) {
+    let message = "Could not download the subscriber list. Please try again.";
+    try {
+      const payload = await response.json();
+      message = payload?.message || message;
+    } catch {
+      // The error response wasn't JSON - the generic message stands.
+    }
+    throw new ApiError(message, { status: response.status });
+  }
+
+  return response.blob();
+};
+
 /**
  * Turns a stored image path into one the browser can load.
  *

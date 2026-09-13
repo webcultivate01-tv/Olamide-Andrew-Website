@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { Fragment, useRef } from "react";
+import Reveal from "../components/reveal";
 
 const SERVICES = [
   {
@@ -66,7 +67,7 @@ export default function MyServices() {
               className="hidden scroll-mt-28 lg:block"
             />
 
-            <article className={PANEL}>
+            <Reveal as="article" variant="up" delay={index * 80} className={PANEL}>
               {/* Both columns are capped rather than fluid, so the pair is
                   centred in the section instead of hugging the left edge on
                   wide screens. */}
@@ -123,7 +124,7 @@ export default function MyServices() {
                   </div>
                 </div>
               </div>
-            </article>
+            </Reveal>
           </Fragment>
         ))}
       </div>

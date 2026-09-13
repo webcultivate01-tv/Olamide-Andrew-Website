@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ApiError, submitEnquiry } from "@/lib/api";
+import Reveal from "../../components/reveal";
 
 const EMAIL = "ishola826@gmail.com";
 
@@ -17,7 +18,6 @@ const EMPTY_FORM = {
   name: "",
   company: "",
   email: "",
-  subject: "",
   service: "",
   phone: "",
   message: "",
@@ -113,8 +113,12 @@ export default function ContactHero() {
           ~0.71em of the line box, so 1.22 leading leaves a clear band of white
           between the two lines. */}
       <h1 className="font-headline text-[2.25rem] leading-[1.22] tracking-[-0.01em] text-foreground uppercase sm:text-[4rem] md:text-[5rem] lg:text-[5.5rem]">
-        <span className="block">Ready to build</span>
-        <span className="block">Something impactful?</span>
+        <Reveal as="span" variant="left" className="block">
+          Ready to build
+        </Reveal>
+        <Reveal as="span" variant="right" delay={120} className="block">
+          Something impactful?
+        </Reveal>
       </h1>
 
       <p className="mx-auto mt-6 max-w-[720px] text-lg leading-relaxed text-black/70 md:mt-8 md:text-xl">
@@ -218,22 +222,6 @@ export default function ContactHero() {
                 {...fieldProps("email")}
               />
               <FieldError name="email" message={fieldErrors.email} />
-            </div>
-
-            <div>
-              <label htmlFor="contact-subject" className={LABEL}>
-                Subject
-              </label>
-              <input
-                id="contact-subject"
-                name="subject"
-                type="text"
-                placeholder="New brand identity"
-                value={form.subject}
-                onChange={update("subject")}
-                {...fieldProps("subject")}
-              />
-              <FieldError name="subject" message={fieldErrors.subject} />
             </div>
 
             <div className="relative">

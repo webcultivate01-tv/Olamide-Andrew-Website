@@ -10,6 +10,7 @@
   --brand-accent-hover: #e08f0c;
   --brand-muted: #a2a6ab;
   --brand-footer-bg: #f1f5f8;
+  --brand-green: #2f6f4c;
 }
 
 @theme inline {
@@ -21,6 +22,7 @@
   --color-accent-hover: var(--brand-accent-hover);
   --color-muted: var(--brand-muted);
   --color-footer: var(--brand-footer-bg);
+  --color-green: var(--brand-green);
 
   --font-sans: var(--font-inter);
   --font-nav: var(--font-oswald);
@@ -88,6 +90,17 @@
   }
 }
 
+@keyframes reveal-right {
+  from {
+    opacity: 0;
+    transform: translate3d(26px, 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 @keyframes reveal-rise {
   from {
     transform: translate3d(0, 105%, 0);
@@ -115,6 +128,21 @@
   }
 }
 
+/* A 3D barrel-roll entrance: the element tips up out of the page on its
+   bottom edge rather than just sliding, which is what reads as "rolling"
+   instead of a flat fade/lift. Kept subtle (40deg, short perspective) so it
+   still feels controlled at any viewport width. */
+@keyframes reveal-roll {
+  from {
+    opacity: 0;
+    transform: perspective(1200px) rotateX(-55deg) translate3d(0, 36px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 [data-reveal] {
   --reveal-delay: 0ms;
   /* A long, near-linear-out ease: quick to commit, slow to land. */
@@ -137,6 +165,15 @@
 
 [data-reveal="left"][data-shown] {
   animation: reveal-left 0.7s var(--reveal-ease) var(--reveal-delay) both;
+}
+
+[data-reveal="right"] {
+  opacity: 0;
+  transform: translate3d(26px, 0, 0);
+}
+
+[data-reveal="right"][data-shown] {
+  animation: reveal-right 0.7s var(--reveal-ease) var(--reveal-delay) both;
 }
 
 /* The clip is what makes the slide read as type rising from behind a
@@ -175,14 +212,65 @@
   animation: reveal-settle 1.4s var(--reveal-ease) var(--reveal-delay) both;
 }
 
+/* Needs its own perspective so the rotateX in reveal-roll has depth to tip
+   into, and a bottom transform-origin so it reads as rolling up off the
+   baseline rather than pivoting from its center. */
+[data-reveal="roll"] {
+  opacity: 0;
+  perspective: 1200px;
+  transform-origin: 50% 100%;
+  transform: perspective(1200px) rotateX(-55deg) translate3d(0, 36px, 0);
+}
+
+[data-reveal="roll"][data-shown] {
+  animation: reveal-roll 0.9s var(--reveal-ease) var(--reveal-delay) both;
+}
+
+@keyframes reveal-word {
+  from {
+    transform: translate3d(0, 100%, 0) rotate(3deg);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+/* Each word gets its own clipped line so it can rise independently; the
+   slight rotation on the way in is what reads as "modern" rather than a
+   flat slide. Padding/margin offset the descenders that overflow-hidden
+   would otherwise clip on a translated child. */
+[data-reveal-word] {
+  display: inline-block;
+  overflow: hidden;
+  padding-bottom: 0.12em;
+  margin-bottom: -0.12em;
+  vertical-align: bottom;
+}
+
+[data-reveal-word] > span {
+  display: inline-block;
+  transform: translate3d(0, 100%, 0) rotate(3deg);
+  opacity: 0;
+}
+
+[data-reveal-word][data-shown] > span {
+  animation: reveal-word 0.75s var(--reveal-ease, cubic-bezier(0.22, 1, 0.36, 1))
+    var(--word-delay, 0ms) both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   [data-reveal],
   [data-reveal] > *,
-  [data-reveal] > * > * {
+  [data-reveal] > * > *,
+  [data-reveal-word],
+  [data-reveal-word] > span {
     opacity: 1;
     clip-path: none;
     transform: none;
     animation: none;
+    perspective: none;
   }
 }
 
@@ -190,4 +278,38 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+/* Toast --------------------------------------------------------------
+   Rises in, holds, then fades - one animation rather than a mount/unmount
+   pair, since the toast is removed from the DOM by its own timer instead of
+   a class toggle. */
+@keyframes toast-in {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 12px, 0);
+  }
+  12% {
+    opacity: 1;
+    transform: none;
+  }
+  88% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(0, 6px, 0);
+  }
+}
+
+.animate-toast-in {
+  animation: toast-in 4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-toast-in {
+    animation-duration: 4s;
+    animation-timing-function: linear;
+  }
 }

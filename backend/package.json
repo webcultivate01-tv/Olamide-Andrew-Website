@@ -11,8 +11,9 @@
     "start": "node server.js",
     "db:migrate": "node database/migrate.js",
     "db:seed": "node database/seed/admin.seed.js",
-    "db:setup": "npm run db:migrate && npm run db:seed && npm run db:seed:case-studies",
-    "db:seed:case-studies": "node database/seed/case-studies.seed.js"
+    "db:setup": "npm run db:migrate && npm run db:seed && npm run db:seed:case-studies && npm run db:seed:categories",
+    "db:seed:case-studies": "node database/seed/case-studies.seed.js",
+    "db:seed:categories": "node database/seed/categories.seed.js"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
@@ -27,6 +28,7 @@
     "multer": "^2.2.0",
     "mysql2": "^3.24.2",
     "nodemailer": "^9.0.5",
+    "pdfkit": "^0.20.2",
     "socket.io": "^4.8.1",
     "zod": "^4.4.3"
   },
