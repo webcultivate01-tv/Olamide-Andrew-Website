@@ -11,7 +11,14 @@ export const CASE_STUDY_STATUSES = ["DRAFT", "PUBLISHED"];
 
 const COLUMNS = `
   id, title, slug, client, service, summary, image_url, image_alt,
-  status, sort_order, published_at, created_at, updated_at
+  status, sort_order, published_at, created_at, updated_at,
+  tagline, categories, intro
+`;
+
+// The ordered body of a study's detail page.
+const BLOCK_COLUMNS = `
+  id, case_study_id, sort_order, type, layout, category, variant,
+  heading, body, image_url, image_alt, color_hex
 `;
 
 // The website's order: lowest sort_order first, then newest, so two studies
@@ -50,8 +57,9 @@ const buildFilter = ({ status, search }) => {
 export const createCaseStudy = async (study) => {
   const [result] = await pool.query(
     `INSERT INTO case_studies
-       (title, slug, client, service, summary, image_url, image_alt, status, sort_order, published_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+       (title, slug, client, service, summary, image_url, image_alt, status, sort_order, published_at,
+        tagline, categories, intro)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       study.title,
       study.slug,
@@ -63,6 +71,9 @@ export const createCaseStudy = async (study) => {
       study.status,
       study.sortOrder,
       study.publishedAt,
+      study.tagline,
+      study.categories,
+      study.intro,
     ]
   );
   return result.insertId;
@@ -143,7 +154,8 @@ export const updateCaseStudy = async (id, study) => {
   const [result] = await pool.query(
     `UPDATE case_studies SET
        title = ?, slug = ?, client = ?, service = ?, summary = ?,
-       image_url = ?, image_alt = ?, status = ?, sort_order = ?, published_at = ?
+       image_url = ?, image_alt = ?, status = ?, sort_order = ?, published_at = ?,
+       tagline = ?, categories = ?, intro = ?
      WHERE id = ?`,
     [
       study.title,
@@ -156,6 +168,9 @@ export const updateCaseStudy = async (id, study) => {
       study.status,
       study.sortOrder,
       study.publishedAt,
+      study.tagline,
+      study.categories,
+      study.intro,
       id,
     ]
   );
@@ -188,4 +203,47 @@ export const countByStatus = async () => {
 export const nextSortOrder = async () => {
   const [rows] = await pool.query("SELECT MAX(sort_order) AS max FROM case_studies");
   return (rows[0].max ?? -1) + 1;
+};
+
+// ---------------------------------------------------------------------------
+// Content blocks — the body of a study's detail page.
+// ---------------------------------------------------------------------------
+
+export const findBlocksByCaseStudyId = async (caseStudyId) => {
+  const [rows] = await pool.query(
+    `SELECT ${BLOCK_COLUMNS} FROM case_study_blocks
+     WHERE case_study_id = ?
+     ORDER BY sort_order ASC, id ASC`,
+    [caseStudyId]
+  );
+  return rows;
+};
+
+// A full replace: every existing block is dropped and the list sent in is
+// inserted in its place, in the order given. Simpler than diffing an old set
+// of blocks against a new one, and the admin form always has the whole list
+// in hand anyway — there is no partial "edit block 3" interaction to support.
+export const replaceBlocks = async (caseStudyId, blocks) => {
+  await pool.query("DELETE FROM case_study_blocks WHERE case_study_id = ?", [caseStudyId]);
+
+  for (const [index, block] of blocks.entries()) {
+    await pool.query(
+      `INSERT INTO case_study_blocks
+         (case_study_id, sort_order, type, layout, category, variant, heading, body, image_url, image_alt, color_hex)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        caseStudyId,
+        index,
+        block.type,
+        block.layout,
+        block.category,
+        block.variant,
+        block.heading,
+        block.body,
+        block.imageUrl,
+        block.imageAlt,
+        block.colorHex,
+      ]
+    );
+  }
 };

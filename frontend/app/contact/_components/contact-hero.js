@@ -8,9 +8,8 @@ const EMAIL = "ishola826@gmail.com";
 
 const SERVICES = [
   "Brand Strategy",
-  "Brand Identity & Design",
-  "Rebrand / Repositioning",
-  "Campaign & Marketing",
+  "Visual Identity",
+  "Brand Activation",
   "Something else",
 ];
 

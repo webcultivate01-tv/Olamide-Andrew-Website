@@ -184,8 +184,14 @@ export const deleteCaseStudy = (id) =>
 // happens as soon as a file is chosen, before the form is submitted, so the
 // admin sees the real image in the preview rather than a local placeholder
 // that might not survive the save.
-export const uploadCaseStudyImage = (file) => {
+//
+// `folder` puts the file in that case study's own subfolder under
+// uploads/case-studies instead of the shared top-level one - it has to be
+// appended before the file for the API to see it in time to use it. Omit it
+// and the upload falls back to the old flat layout.
+export const uploadCaseStudyImage = (file, folder) => {
   const form = new FormData();
+  if (folder) form.append("folder", folder);
   form.append("image", file);
 
   return request("/api/admin/case-studies/image", { method: "POST", body: form });
@@ -254,8 +260,15 @@ export const deletePost = (id) => request(`/api/admin/blog/${id}`, { method: "DE
 // Stores the file and answers with the path to save on the record. Same
 // reasoning as the case study upload above: the file goes up as soon as it is
 // chosen, so the preview shows the real image.
-export const uploadPostImage = (file) => {
+//
+// `folder` is "<category>/<block name>", which files a block's images under
+// the category the post belongs to rather than the shared top-level folder -
+// it has to be appended before the file for the API to see it in time to use
+// it. Omit it and the upload lands in uploads/blog itself, as a cover image
+// does.
+export const uploadPostImage = (file, folder) => {
   const form = new FormData();
+  if (folder) form.append("folder", folder);
   form.append("image", file);
 
   return request("/api/admin/blog/image", { method: "POST", body: form });
@@ -275,9 +288,16 @@ export const postStatusLabel = (value) =>
 // There is no public endpoint - categories are an admin-only list, the same
 // way tags have no endpoint of their own either.
 
-export const getCategories = ({ search = "" } = {}) => {
+// The two lists a category can belong to. `type` filters to one of them.
+export const CATEGORY_TYPES = [
+  { value: "blog", label: "Blog categories" },
+  { value: "case_study", label: "Case study categories" },
+];
+
+export const getCategories = ({ search = "", type = "" } = {}) => {
   const query = new URLSearchParams();
   if (search) query.set("search", search);
+  if (type) query.set("type", type);
   const qs = query.toString();
 
   return request(`/api/admin/categories${qs ? `?${qs}` : ""}`);

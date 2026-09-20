@@ -56,8 +56,37 @@ const IMAGE_TYPES = {
 // than an untouched camera file.
 const MAX_BYTES = 4 * 1024 * 1024;
 
+// A folder the caller sends alongside the file, so uploads that belong
+// together land in one place instead of all sharing the feature's top-level
+// folder. A case study sends one segment - its own slug. A blog post sends
+// two: the category it is filed under, then the block the image belongs to.
+//
+// Each segment is checked on its own rather than the string as a whole. These
+// are path segments, not free text, and testing them one at a time is what
+// stands between them and a "../../" trying to climb out of the uploads
+// folder - a whole-string regex allowing "/" would also allow "a/../../b".
+const FOLDER_SEGMENT = /^[a-z0-9-]{1,180}$/;
+const MAX_FOLDER_DEPTH = 2;
+
+const folderSegments = (folder) => {
+  if (typeof folder !== "string" || !folder) return null;
+
+  const segments = folder.split("/");
+  if (segments.length > MAX_FOLDER_DEPTH) return null;
+  if (!segments.every((segment) => FOLDER_SEGMENT.test(segment))) return null;
+
+  return segments;
+};
+
 /**
- * A single-image upload handler writing into `destination`.
+ * A single-image upload handler writing into `destination`, or into a
+ * subfolder of it named by the request's `folder` field when one is sent and
+ * every segment of it looks like a slug.
+ *
+ * The field has to arrive before the file in the multipart body for this to
+ * see it - multer parses the stream in order, and the destination callback
+ * fires the moment the file part is reached. Callers append `folder` to the
+ * FormData first for that reason.
  *
  * multer reports its own limits as a MulterError, which the error handler would
  * otherwise treat as an unexpected bug and answer with a generic 500. The
@@ -67,7 +96,16 @@ const MAX_BYTES = 4 * 1024 * 1024;
 const makeImageUpload = (destination) => {
   const upload = multer({
     storage: multer.diskStorage({
-      destination: (req, file, done) => done(null, destination),
+      destination: (req, file, done) => {
+        const segments = folderSegments(req.body?.folder);
+        const target = segments ? path.join(destination, ...segments) : destination;
+
+        // Created on demand rather than up front, same as the top-level
+        // folders at startup - there is no way to know every case study's
+        // slug in advance.
+        fs.mkdirSync(target, { recursive: true });
+        done(null, target);
+      },
       filename: (req, file, done) => {
         // Random, so two people uploading "cover.jpg" cannot overwrite each
         // other and nobody can guess the URL of an image before it is

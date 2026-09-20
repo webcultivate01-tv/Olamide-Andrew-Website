@@ -101,6 +101,33 @@
   }
 }
 
+/* Wide variants of left/right: same converging gesture, much longer travel
+   so the line visibly enters from off past the edge of its section rather
+   than just nudging in. Only for sections that are overflow-hidden, since
+   the starting position sits outside the element's own box. Longer duration
+   keeps the extra distance from reading as a rushed snap. */
+@keyframes reveal-wide-left {
+  from {
+    opacity: 0;
+    transform: translate3d(-16vw, 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes reveal-wide-right {
+  from {
+    opacity: 0;
+    transform: translate3d(16vw, 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 @keyframes reveal-rise {
   from {
     transform: translate3d(0, 105%, 0);
@@ -174,6 +201,24 @@
 
 [data-reveal="right"][data-shown] {
   animation: reveal-right 0.7s var(--reveal-ease) var(--reveal-delay) both;
+}
+
+[data-reveal="wide-left"] {
+  opacity: 0;
+  transform: translate3d(-16vw, 0, 0);
+}
+
+[data-reveal="wide-left"][data-shown] {
+  animation: reveal-wide-left 1s var(--reveal-ease) var(--reveal-delay) both;
+}
+
+[data-reveal="wide-right"] {
+  opacity: 0;
+  transform: translate3d(16vw, 0, 0);
+}
+
+[data-reveal="wide-right"][data-shown] {
+  animation: reveal-wide-right 1s var(--reveal-ease) var(--reveal-delay) both;
 }
 
 /* The clip is what makes the slide read as type rising from behind a
@@ -260,7 +305,59 @@
     var(--word-delay, 0ms) both;
 }
 
+/* Scroll-linked motion ------------------------------------------------
+   The case study detail page's two scroll-driven effects. Both are fed a
+   0..1 position by app/components/scroll-progress.js, which writes it to a
+   custom property on the element and leaves the motion itself here — so
+   every frame is a composited transform rather than a style recalculation.
+   Both properties default to 0, which is also the at-rest pose, so the
+   server-rendered page is correct before a single frame has been measured. */
+
+/* The hero drifts up and zooms a touch as the page covers it. The zoom
+   outruns the drift on purpose: at full travel the image overflows its frame
+   by 4% on every edge but has only moved 3%, so no sliver of background can
+   appear along the bottom while it is still on screen. */
+[data-hero-media] {
+  transform: translate3d(0, calc(var(--hero-cover, 0) * -3%), 0)
+    scale(calc(1 + var(--hero-cover, 0) * 0.08));
+}
+
+/* Closing over the hero as it goes, so the page arriving above it reads as
+   the lit thing and the hero as the one falling into shadow. */
+[data-hero-veil] {
+  opacity: calc(var(--hero-cover, 0) * 0.55);
+}
+
 @media (prefers-reduced-motion: reduce) {
+  [data-reveal],
+  [data-reveal] > *,
+  [data-reveal] > * > *,
+  [data-reveal-word],
+  [data-reveal-word] > span {
+    opacity: 1;
+    clip-path: none;
+    transform: none;
+    animation: none;
+    perspective: none;
+  }
+
+  /* The hero's sticky position stays — that's a position, not an animation —
+     but nothing else is allowed to move on its own as the page scrolls. */
+  [data-hero-media] {
+    transform: none;
+  }
+
+  [data-hero-veil] {
+    opacity: 0;
+  }
+}
+
+/* On phones the reveal's scroll-triggered `data-shown` can miss content
+   that's off-screen when a full-page/scrolling screenshot is captured, or
+   that a fast flick-scroll carries past before the observer's callback
+   runs — leaving blocks permanently clipped to nothing. Below the `md`
+   breakpoint content is shown immediately instead of waiting on scroll. */
+@media (max-width: 767px) {
   [data-reveal],
   [data-reveal] > *,
   [data-reveal] > * > *,
@@ -311,5 +408,101 @@ body {
   .animate-toast-in {
     animation-duration: 4s;
     animation-timing-function: linear;
+  }
+}
+
+/* Blog post body ------------------------------------------------------
+   The Markdown a post is written in, given the same type as the rest of the
+   site. Tailwind's preflight strips heading and list styling, and the body
+   of a post is the one place on the site where the markup is authored
+   rather than written as components - so it is restyled once here instead
+   of being unreachable from the editor. */
+.blog-prose {
+  font-size: 1rem;
+  line-height: 2.05;
+  color: color-mix(in srgb, var(--color-foreground) 75%, transparent);
+}
+
+.blog-prose > * + * {
+  margin-top: 1.25rem;
+}
+
+/* Inside a section the copy reads as a run of statements on consecutive
+   lines rather than as separated paragraphs: the sentence that introduces a
+   list, the bullets under it and the line that closes it all sit on the same
+   leading. The 1.25rem above is what a heading, a quote or an image still
+   gets - only body copy next to body copy closes up. */
+.blog-prose > p + p,
+.blog-prose > p + ul,
+.blog-prose > p + ol,
+.blog-prose > ul + p,
+.blog-prose > ol + p {
+  margin-top: 0;
+}
+
+.blog-prose h2 {
+  font-family: var(--font-headline);
+  font-size: 1.5rem;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  color: var(--color-foreground);
+  margin-top: 2.25rem;
+}
+
+.blog-prose h3 {
+  font-family: var(--font-headline);
+  font-size: 1.25rem;
+  line-height: 1.25;
+  text-transform: uppercase;
+  color: var(--color-foreground);
+  margin-top: 2rem;
+}
+
+.blog-prose strong {
+  font-weight: 600;
+  color: var(--color-foreground);
+}
+
+.blog-prose ul,
+.blog-prose ol {
+  padding-left: 1.5rem;
+}
+
+.blog-prose ul {
+  list-style: disc;
+}
+
+.blog-prose ol {
+  list-style: decimal;
+}
+
+.blog-prose li + li {
+  margin-top: 0;
+}
+
+.blog-prose a {
+  color: var(--color-navy);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.blog-prose blockquote {
+  border-left: 3px solid var(--color-accent);
+  padding-left: 1.25rem;
+  font-style: italic;
+}
+
+@media (min-width: 768px) {
+  .blog-prose {
+    font-size: 1.125rem;
+  }
+
+  .blog-prose h2 {
+    font-size: 2rem;
+  }
+
+  .blog-prose h3 {
+    font-size: 1.5rem;
   }
 }

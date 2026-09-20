@@ -3,7 +3,7 @@ import path from "node:path";
 import * as caseStudyModel from "../models/case-study.model.js";
 import { CASE_STUDY_STATUSES } from "../models/case-study.model.js";
 import { slugify } from "../validators/case-study.validator.js";
-import { caseStudyUploadsDir } from "../middleware/upload.middleware.js";
+import { uploadsDir, caseStudyUploadsDir } from "../middleware/upload.middleware.js";
 import { sendSuccess } from "../utils/response.js";
 import { AppError } from "../utils/app-error.js";
 
@@ -13,16 +13,33 @@ import { AppError } from "../utils/app-error.js";
 // /case-studies page reads - and they only ever return published rows. All the
 // rest sit behind requireAuth on the /api/admin router.
 
+// The column holds "Finance, Investment"; everything above the model works
+// with an array. Empty and NULL both mean "no categories".
+const toCategoryArray = (value) =>
+  value
+    ? value
+        .split(",")
+        .map((category) => category.trim())
+        .filter(Boolean)
+    : [];
+
 // A database row is snake_case and carries MySQL Date objects. The panel and
 // the website both want camelCase and ISO strings, so every response goes
 // through here.
+//
+// `blocks` is only on the row for the single-study lookups - the list
+// queries never attach it - so it is only added to the response when it is
+// really there, the same reasoning blog posts use for `content`.
 const toApiCaseStudy = (row) => ({
   id: row.id,
   title: row.title,
+  tagline: row.tagline,
   slug: row.slug,
   client: row.client,
   service: row.service,
   summary: row.summary,
+  categories: toCategoryArray(row.categories),
+  intro: row.intro,
   imageUrl: row.image_url,
   imageAlt: row.image_alt,
   status: row.status,
@@ -30,6 +47,20 @@ const toApiCaseStudy = (row) => ({
   publishedAt: row.published_at,
   createdAt: row.created_at,
   updatedAt: row.updated_at,
+  ...(row.blocks !== undefined ? { blocks: row.blocks.map(toApiBlock) } : {}),
+});
+
+const toApiBlock = (row) => ({
+  id: row.id,
+  type: row.type,
+  layout: row.layout,
+  category: row.category,
+  variant: row.variant,
+  heading: row.heading,
+  body: row.body,
+  imageUrl: row.image_url,
+  imageAlt: row.image_alt,
+  colorHex: row.color_hex,
 });
 
 // Finds a slug nothing else is using: the one asked for, or that with -2, -3
@@ -57,20 +88,35 @@ const uniqueSlug = async (wanted, excludeId = null) => {
 // Only images this API wrote are ever deleted, and only ones that are really
 // inside the uploads folder. image_url can also point at a file in the
 // website's own public folder, which is not ours to remove.
+//
+// Images now live one folder deeper - uploads/case-studies/<slug>/<file> -
+// so this resolves the whole remainder of the path, not just the basename.
 const removeUploadedImage = async (imageUrl) => {
   if (!imageUrl || !imageUrl.startsWith("/uploads/case-studies/")) return;
 
-  const filename = path.basename(imageUrl);
-  const target = path.resolve(caseStudyUploadsDir, filename);
+  const relative = imageUrl.slice("/uploads/case-studies/".length);
+  const target = path.resolve(caseStudyUploadsDir, relative);
 
-  // path.basename already strips any directory part, so nothing can climb out
-  // of the folder. This is the belt to that braces: resolve the path and check
-  // it really is where we think it is before unlinking anything.
-  if (path.dirname(target) !== path.resolve(caseStudyUploadsDir)) return;
+  // Resolving and checking the result is still inside the folder is what
+  // stops a "../../" in the remainder from climbing out of it.
+  const base = path.resolve(caseStudyUploadsDir) + path.sep;
+  if (!target.startsWith(base)) return;
 
   // A missing file is fine - the row is going either way, and a failed delete
   // must not fail the request.
   await fs.unlink(target).catch(() => {});
+};
+
+// Array in, comma column out — the shape createCaseStudy/updateCaseStudy's
+// model layer expects, and the reverse of toCategoryArray above.
+const toCategoryColumn = (categories) => (categories.length ? categories.join(", ") : null);
+
+// Attaches a study's ordered blocks to the row before it goes through
+// toApiCaseStudy, which only serialises them when the key is present.
+const withBlocks = async (study) => {
+  if (!study) return study;
+  const blocks = await caseStudyModel.findBlocksByCaseStudyId(study.id);
+  return { ...study, blocks };
 };
 
 // ---------------------------------------------------------------------------
@@ -106,7 +152,7 @@ export const getPublishedCaseStudy = async (req, res, next) => {
     }
 
     return sendSuccess(res, 200, "Case study loaded.", {
-      caseStudy: toApiCaseStudy(study),
+      caseStudy: toApiCaseStudy(await withBlocks(study)),
     });
   } catch (error) {
     next(error);
@@ -175,7 +221,7 @@ export const getCaseStudy = async (req, res, next) => {
     }
 
     return sendSuccess(res, 200, "Case study loaded.", {
-      caseStudy: toApiCaseStudy(study),
+      caseStudy: toApiCaseStudy(await withBlocks(study)),
     });
   } catch (error) {
     next(error);
@@ -204,12 +250,15 @@ export const createCaseStudy = async (req, res, next) => {
       slug,
       sortOrder,
       publishedAt,
+      categories: toCategoryColumn(body.categories),
     });
+
+    await caseStudyModel.replaceBlocks(id, body.blocks);
 
     const study = await caseStudyModel.findById(id);
 
     return sendSuccess(res, 201, "Case study created.", {
-      caseStudy: toApiCaseStudy(study),
+      caseStudy: toApiCaseStudy(await withBlocks(study)),
     });
   } catch (error) {
     next(error);
@@ -242,6 +291,10 @@ export const updateCaseStudy = async (req, res, next) => {
       imageAlt: body.imageAlt !== undefined ? body.imageAlt : existing.image_alt,
       status: body.status ?? existing.status,
       sortOrder: body.sortOrder ?? existing.sort_order,
+      tagline: body.tagline !== undefined ? body.tagline : existing.tagline,
+      categories:
+        body.categories !== undefined ? toCategoryColumn(body.categories) : existing.categories,
+      intro: body.intro !== undefined ? body.intro : existing.intro,
     };
 
     // An explicit slug replaces the old one. Retitling a study does *not*
@@ -262,6 +315,13 @@ export const updateCaseStudy = async (req, res, next) => {
 
     await caseStudyModel.updateCaseStudy(id, merged);
 
+    // Undefined means the form's block list was never sent - leave the
+    // existing blocks alone. An explicit [] is how the form says "delete
+    // them all", the same rule every other field here follows.
+    if (body.blocks !== undefined) {
+      await caseStudyModel.replaceBlocks(id, body.blocks);
+    }
+
     // The image was replaced, so the file the old row pointed at is orphaned.
     // Clean it up after the row is safely saved, never before.
     if (body.imageUrl !== undefined && body.imageUrl !== existing.image_url) {
@@ -271,7 +331,7 @@ export const updateCaseStudy = async (req, res, next) => {
     const study = await caseStudyModel.findById(id);
 
     return sendSuccess(res, 200, "Case study saved.", {
-      caseStudy: toApiCaseStudy(study),
+      caseStudy: toApiCaseStudy(await withBlocks(study)),
     });
   } catch (error) {
     next(error);
@@ -336,14 +396,21 @@ export const deleteCaseStudy = async (req, res, next) => {
 // Returns the path to store, not the file. The form saves that path with the
 // rest of the record, which is what lets an admin swap the image and then
 // abandon the edit - the file is on disk, but no row points at it.
+//
+// The file may have landed in a per-case-study subfolder (see the `folder`
+// field the upload middleware reads) or, without one, straight in the
+// top-level case-studies folder - so the URL is built from where the file
+// actually was written rather than assumed.
 export const uploadImage = async (req, res, next) => {
   try {
     if (!req.file) {
       throw new AppError("Please choose an image to upload.", 400);
     }
 
+    const relative = path.relative(uploadsDir, req.file.path).split(path.sep).join("/");
+
     return sendSuccess(res, 201, "Image uploaded.", {
-      imageUrl: `/uploads/case-studies/${req.file.filename}`,
+      imageUrl: `/uploads/${relative}`,
     });
   } catch (error) {
     next(error);

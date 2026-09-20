@@ -2,7 +2,6 @@ import HomeHero from "./_components/home-hero";
 import BrandMessage from "./_components/brand-message";
 import HowIThink from "./_components/how-i-think";
 import MyServices from "./_components/my-services";
-import NewsletterCta from "./components/newsletter-cta";
 import BrandWorkCta from "./components/brand-work-cta";
 
 export const metadata = {
@@ -18,7 +17,6 @@ export default function Home() {
       <BrandMessage />
       <HowIThink />
       <MyServices />
-      <NewsletterCta />
       <BrandWorkCta />
     </>
   );

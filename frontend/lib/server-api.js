@@ -53,14 +53,39 @@ export const adminFetch = async (path) => {
  * A failure returns null instead of throwing. A page that cannot reach the API
  * should render without that section, not become an error screen.
  */
-export const publicFetch = async (path) => {
+export const publicFetch = async (path) => (await publicFetchResult(path)).data;
+
+/**
+ * The same call, with the reason for a failure kept instead of flattened into
+ * null.
+ *
+ * `reachable` is false only when the API could not be talked to at all. A page
+ * that turns "no data" into a 404 needs that apart from a genuine 404: a study
+ * that has been deleted is permanently gone, whereas an API that is down or
+ * still starting up is a page that will work again shortly. Answering 404 to
+ * the second tells a crawler to drop a URL that was never actually removed,
+ * and tells whoever is running the site that their content is missing when
+ * what is actually missing is the backend.
+ */
+export const publicFetchResult = async (path) => {
   try {
     const response = await fetch(`${API_URL}${path}`, { cache: "no-store" });
-    const payload = await response.json();
 
-    return payload?.success ? payload.data : null;
+    let payload = null;
+    try {
+      payload = await response.json();
+    } catch {
+      // A body we cannot read — an HTML error page from a proxy, say — is
+      // still a reply, not an unreachable API.
+    }
+
+    return {
+      reachable: true,
+      status: response.status,
+      data: payload?.success ? payload.data : null,
+    };
   } catch {
-    return null;
+    return { reachable: false, status: 0, data: null };
   }
 };
 

@@ -106,6 +106,58 @@ const status = z.enum(BLOG_POST_STATUSES, {
   error: `Status must be one of: ${BLOG_POST_STATUSES.join(", ")}.`,
 });
 
+// ---------------------------------------------------------------------------
+// Content blocks
+// ---------------------------------------------------------------------------
+
+const BLOCK_TYPES = ["IMAGE", "COLOR", "TEXT"];
+const BLOCK_LAYOUTS = ["FULL", "HALF"];
+const BLOCK_VARIANTS = ["DEFAULT", "PROMISE"];
+
+// Same two shapes coverImageUrl allows, and for the same reason.
+const blockImageUrl = optionalText(500, "Block image").refine(
+  (value) => value === null || /^\/[\w\-./]*$/.test(value) || /^https:\/\/\S+$/.test(value),
+  "The image must be an uploaded file or an https:// address."
+);
+
+const blockColorHex = optionalText(20, "Block colour").refine(
+  (value) => value === null || /^#[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$/.test(value),
+  "Colour must be a hex value like #2f6f4c."
+);
+
+// What each block needs depends on what kind it is, so the type-specific
+// requirements are refinements on the whole object rather than fields that
+// are required outright.
+const blockSchema = z
+  .object({
+    type: z.enum(BLOCK_TYPES, {
+      error: `Block type must be one of: ${BLOCK_TYPES.join(", ")}.`,
+    }),
+    layout: z.enum(BLOCK_LAYOUTS).default("FULL"),
+    variant: z.enum(BLOCK_VARIANTS).default("DEFAULT"),
+    heading: optionalText(255, "Block heading"),
+    body: optionalText(4000, "Block text"),
+    imageUrl: blockImageUrl,
+    imageAlt: optionalText(255, "Block image description"),
+    colorHex: blockColorHex,
+  })
+  .refine((block) => block.type !== "IMAGE" || block.imageUrl, {
+    message: "An image block needs an image.",
+    path: ["imageUrl"],
+  })
+  .refine((block) => block.type !== "COLOR" || block.colorHex, {
+    message: "A colour block needs a colour.",
+    path: ["colorHex"],
+  })
+  .refine((block) => block.type !== "TEXT" || block.body, {
+    message: "A text block needs some body copy.",
+    path: ["body"],
+  });
+
+const blockList = z
+  .array(blockSchema)
+  .max(40, "A post can have at most 40 content blocks.");
+
 export const createBlogPostSchema = z.object({
   title,
   slug,
@@ -118,6 +170,7 @@ export const createBlogPostSchema = z.object({
   // A new post starts as a draft unless the form says otherwise, so nothing
   // half-written can reach the website by being saved too early.
   status: status.default("DRAFT"),
+  blocks: blockList.optional().default([]),
 });
 
 // Every field is optional here: the edit form sends the whole record, but a
@@ -134,6 +187,9 @@ export const updateBlogPostSchema = z
     coverImageUrl: coverImageUrl.optional(),
     coverImageAlt: coverImageAlt.optional(),
     status: status.optional(),
+    // Left out entirely means "leave the blocks alone"; an explicit [] is how
+    // the form says "delete them all".
+    blocks: blockList.optional(),
   })
   .refine(
     (value) => Object.keys(value).length > 0,

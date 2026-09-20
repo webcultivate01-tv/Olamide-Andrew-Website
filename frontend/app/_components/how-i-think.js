@@ -29,6 +29,9 @@ const STEPS = [
 // Matches the gap-6 on the rail — used to advance exactly one card per click.
 const GAP = 24;
 
+// How long a card sits in view before the rail advances on its own.
+const AUTO_PLAY_INTERVAL = 2000;
+
 function LightbulbIcon() {
   return (
     <svg
@@ -66,6 +69,7 @@ function Chevron({ direction }) {
 
 export default function HowIThink() {
   const railRef = useRef(null);
+  const pausedRef = useRef(false);
   const [progress, setProgress] = useState(0);
 
   // The bar tracks how much of the run has been revealed — including the cards
@@ -88,13 +92,46 @@ export default function HowIThink() {
     return () => window.removeEventListener("resize", sync);
   }, [sync]);
 
-  function step(direction) {
+  const step = useCallback((direction) => {
     const rail = railRef.current;
     if (!rail) return;
 
     const card = rail.firstElementChild;
     const distance = card ? card.offsetWidth + GAP : rail.clientWidth;
     rail.scrollBy({ left: direction * distance, behavior: "smooth" });
+  }, []);
+
+  // Auto-advance the rail so the rest of the steps surface on their own
+  // instead of waiting on a click — loops back to the start once the last
+  // card is on screen. Hovering or focusing a card (mouse or keyboard)
+  // pauses it, since a card sliding away mid-read would be worse than a
+  // static one. Skipped entirely for anyone who's asked for less motion,
+  // and on mobile the rail isn't horizontally scrollable to begin with.
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const id = window.setInterval(() => {
+      const rail = railRef.current;
+      if (!rail || pausedRef.current) return;
+      if (rail.scrollWidth <= rail.clientWidth) return;
+
+      const atEnd = rail.scrollLeft + rail.clientWidth >= rail.scrollWidth - 1;
+      if (atEnd) {
+        rail.scrollTo({ left: 0, behavior: "smooth" });
+      } else {
+        step(1);
+      }
+    }, AUTO_PLAY_INTERVAL);
+
+    return () => window.clearInterval(id);
+  }, [step]);
+
+  function pause() {
+    pausedRef.current = true;
+  }
+
+  function resume() {
+    pausedRef.current = false;
   }
 
   return (
@@ -114,6 +151,11 @@ export default function HowIThink() {
       <div
         ref={railRef}
         onScroll={sync}
+        onMouseEnter={pause}
+        onMouseLeave={resume}
+        onFocus={pause}
+        onBlur={resume}
+        onTouchStart={pause}
         className="no-scrollbar mt-10 md:mt-16 md:overflow-x-auto"
       >
         <div className="flex flex-col gap-5 px-5 md:w-max md:flex-row md:items-stretch md:gap-6 md:px-10 lg:px-20">

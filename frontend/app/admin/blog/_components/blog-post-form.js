@@ -1,16 +1,18 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   POST_STATUSES,
   createPost,
   deletePost,
+  getCategories,
   mediaUrl,
   updatePost,
   uploadPostImage,
 } from "@/lib/api";
+import { categoryForTags } from "@/app/insights/_components/categories";
 
 /**
  * One form for both writing and editing a post.
@@ -61,6 +63,66 @@ const readingStats = (content) => {
   const words = content.trim().split(/\s+/).filter(Boolean).length;
   return { words, minutes: Math.max(1, Math.ceil(words / WORDS_PER_MINUTE)) };
 };
+
+// Mirrors the backend's slugify (blog-post.validator.js) closely enough for a
+// folder name - it does not need to match anything stored, only to be a
+// stable, filesystem-safe stand-in for "this block".
+const slugify = (value) =>
+  value
+    .normalize("NFKD")
+    .replace(/\p{Diacritic}/gu, "")
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 180);
+
+// A block as the form edits it, with a local `key` for React's benefit — the
+// only thing the API's block ids are used for is telling one row from another
+// before it has ever been saved.
+let blockKeySeed = 0;
+const nextBlockKey = () => `block-${Date.now()}-${blockKeySeed++}`;
+
+const BLOCK_TYPES = [
+  { value: "IMAGE", label: "Image" },
+  { value: "COLOR", label: "Colour panel" },
+  { value: "TEXT", label: "Heading & text" },
+];
+
+const BLOCK_LAYOUTS = [
+  { value: "FULL", label: "Full width" },
+  { value: "HALF", label: "Half width" },
+];
+
+const BLOCK_VARIANTS = [
+  { value: "DEFAULT", label: "Section" },
+  { value: "PROMISE", label: "Large statement" },
+];
+
+const emptyBlock = (type, layout = "FULL") => ({
+  key: nextBlockKey(),
+  type,
+  layout,
+  variant: "DEFAULT",
+  heading: "",
+  body: "",
+  imageUrl: "",
+  imageAlt: "",
+  colorHex: type === "COLOR" ? "#2f6f4c" : "",
+});
+
+const toFormBlocks = (blocks) =>
+  (blocks ?? []).map((block) => ({
+    key: nextBlockKey(),
+    type: block.type,
+    layout: block.layout ?? "FULL",
+    variant: block.variant ?? "DEFAULT",
+    heading: block.heading ?? "",
+    body: block.body ?? "",
+    imageUrl: block.imageUrl ?? "",
+    imageAlt: block.imageAlt ?? "",
+    colorHex: block.colorHex ?? "",
+  }));
 
 function Field({ label, htmlFor, hint, error, children }) {
   return (
@@ -190,6 +252,7 @@ export default function BlogPostForm({ post = null }) {
 
   const [values, setValues] = useState(() => toFormValues(post));
   const [tags, setTags] = useState(() => post?.tags ?? []);
+  const [blocks, setBlocks] = useState(() => toFormBlocks(post?.blocks));
   const [errors, setErrors] = useState({});
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
@@ -198,8 +261,46 @@ export default function BlogPostForm({ post = null }) {
   const [uploading, setUploading] = useState(false);
   const fileInput = useRef(null);
 
+  // Which block's image is uploading, if any — blocks upload one at a time,
+  // the same as the cover image, so a single key is enough to track it.
+  const [uploadingBlockKey, setUploadingBlockKey] = useState(null);
+
+  // The admin's category list, for the picker below. An empty list is a fine
+  // answer — a site with no categories yet still saves posts — so a failed
+  // load leaves it empty rather than showing an error over the whole form.
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    getCategories({ type: "blog" })
+      .then((payload) => {
+        if (!cancelled) setCategories(payload.data.categories);
+      })
+      .catch(() => {});
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
+
+  // A post's category is whichever of its tags matches one — the same pairing
+  // the public blog grid reads, so there is one answer to "what category is
+  // this post in" rather than a second field that could disagree with it.
+  const category = categoryForTags(categories, tags);
+
+  // Picking a category swaps the old category's tag for the new one and
+  // leaves every other tag alone.
+  const selectCategory = (slug) => {
+    const categorySlugs = new Set(categories.map((option) => option.slug));
+    const kept = tags.filter((tag) => !categorySlugs.has(tag));
+
+    setTags(slug ? [slug, ...kept] : kept);
+    setErrors((current) => (current.tags ? { ...current, tags: undefined } : current));
+  };
 
   const setField = (name) => (event) => {
     const { value } = event.target;
@@ -233,6 +334,73 @@ export default function BlogPostForm({ post = null }) {
     }
   };
 
+  // `count` is what the "two half images" button uses: a pair is the thing
+  // being added, not two blocks that happen to end up adjacent.
+  const addBlock = (type, layout = "FULL", count = 1) => {
+    setBlocks((current) => [
+      ...current,
+      ...Array.from({ length: count }, () => emptyBlock(type, layout)),
+    ]);
+  };
+
+  const removeBlock = (key) => {
+    setBlocks((current) => current.filter((block) => block.key !== key));
+  };
+
+  const moveBlock = (key, direction) => {
+    setBlocks((current) => {
+      const index = current.findIndex((block) => block.key === key);
+      const target = index + direction;
+      if (index === -1 || target < 0 || target >= current.length) return current;
+
+      const next = [...current];
+      [next[index], next[target]] = [next[target], next[index]];
+      return next;
+    });
+  };
+
+  const setBlockValue = (key, field, value) => {
+    setBlocks((current) =>
+      current.map((block) => (block.key === key ? { ...block, [field]: value } : block))
+    );
+  };
+
+  const setBlockField = (key, field) => (event) =>
+    setBlockValue(key, field, event.target.value);
+
+  // Where a block's images are filed: the post's category, then the block's
+  // own name. Both fall back to a placeholder rather than refusing the
+  // upload, so choosing a file before naming the block still works — the
+  // block can be named afterwards, and the next upload lands in the named
+  // folder.
+  const blockFolder = (block) =>
+    `${category?.slug || "uncategorised"}/${slugify(block.heading) || "block"}`;
+
+  // Same reasoning as the cover image: uploaded the moment it is chosen, so
+  // the block shows the real file rather than a blob that might never reach
+  // the server.
+  const uploadBlockImage = async (key, file) => {
+    setUploadingBlockKey(key);
+    setError("");
+
+    try {
+      const block = blocks.find((candidate) => candidate.key === key);
+      const payload = await uploadPostImage(file, blockFolder(block));
+      setBlockValue(key, "imageUrl", payload.data.imageUrl);
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
+      setUploadingBlockKey(null);
+    }
+  };
+
+  const handleBlockFile = (key) => (event) => {
+    const file = event.target.files?.[0];
+    // Cleared so picking the same file twice in a row still fires a change.
+    event.target.value = "";
+    if (file) uploadBlockImage(key, file);
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
 
@@ -253,6 +421,14 @@ export default function BlogPostForm({ post = null }) {
       coverImageUrl: values.coverImageUrl || null,
       coverImageAlt: values.coverImageAlt || null,
       status: values.status,
+      blocks: blocks.map(({ key, ...block }) => ({
+        ...block,
+        heading: block.heading || null,
+        body: block.body || null,
+        imageUrl: block.imageUrl || null,
+        imageAlt: block.imageAlt || null,
+        colorHex: block.colorHex || null,
+      })),
     };
 
     try {
@@ -260,6 +436,7 @@ export default function BlogPostForm({ post = null }) {
         const payload = await updatePost(post.id, body);
         setValues(toFormValues(payload.data.post));
         setTags(payload.data.post.tags);
+        setBlocks(toFormBlocks(payload.data.post.blocks));
         setMessage(payload.message);
         // The public blog is server-rendered from this data, and so is the
         // list behind this form.
@@ -296,7 +473,7 @@ export default function BlogPostForm({ post = null }) {
     }
   };
 
-  const busy = saving || uploading || deleting;
+  const busy = saving || uploading || deleting || uploadingBlockKey !== null;
   const previewSrc = mediaUrl(values.coverImageUrl);
   const { words, minutes } = readingStats(values.content);
 
@@ -449,7 +626,7 @@ export default function BlogPostForm({ post = null }) {
                 label="Image description"
                 htmlFor="coverImageAlt"
                 error={errors.coverImageAlt}
-                hint="Read aloud in place of the image. Describe what is in it, not that it is a photo."
+                hint="Printed as the caption under the cover on the post, and read aloud in place of the image. Describe what is in it, not that it is a photo."
               >
                 <input
                   id="coverImageAlt"
@@ -457,11 +634,260 @@ export default function BlogPostForm({ post = null }) {
                   value={values.coverImageAlt}
                   onChange={setField("coverImageAlt")}
                   disabled={busy}
-                  placeholder="A logo sketch pinned to a studio wall beside its final mark"
+                  placeholder="Sample: Coca Cola Branding"
                   className={inputClass}
                 />
               </Field>
             </div>
+          </div>
+        </div>
+
+        {/* Content blocks ---------------------------------------------------- */}
+        <div className="rounded-2xl border border-black/10 bg-white p-6 md:p-8">
+          <h2 className="font-headline text-2xl tracking-tight text-navy uppercase">
+            Content blocks
+          </h2>
+          <p className="mt-2 text-sm text-black/50">
+            The set pieces above the post itself: images, colour panels and
+            headed statements. A full-width block runs edge to edge; two
+            half-width blocks next to each other split that width between them.
+          </p>
+          <p className="mt-2 text-sm text-black/50">
+            An image block&apos;s name is the folder its uploads are filed
+            under:{" "}
+            <span className="font-mono text-xs">
+              uploads/blog/{category?.slug || "uncategorised"}/&lt;block name&gt;/
+            </span>
+            . Name the block before choosing the file.
+          </p>
+
+          {errors.blocks ? (
+            <p role="alert" className="mt-4 text-sm text-red-700">
+              {errors.blocks}
+            </p>
+          ) : null}
+
+          <div className="mt-6 space-y-5">
+            {blocks.map((block, index) => (
+              <div
+                key={block.key}
+                className="rounded-xl border border-black/10 bg-black/[0.015] p-5"
+              >
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex flex-wrap items-center gap-3">
+                    <span className="font-nav text-xs font-bold tracking-[0.12em] text-black/45 uppercase">
+                      {index + 1}. {BLOCK_TYPES.find((t) => t.value === block.type)?.label}
+                    </span>
+
+                    <select
+                      value={block.layout}
+                      onChange={setBlockField(block.key, "layout")}
+                      disabled={busy}
+                      aria-label="Block width"
+                      className="rounded-lg border border-black/15 bg-white px-3 py-1.5 text-sm text-foreground"
+                    >
+                      {BLOCK_LAYOUTS.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+
+                    {block.type === "TEXT" ? (
+                      <select
+                        value={block.variant}
+                        onChange={setBlockField(block.key, "variant")}
+                        disabled={busy}
+                        aria-label="Text style"
+                        className="rounded-lg border border-black/15 bg-white px-3 py-1.5 text-sm text-foreground"
+                      >
+                        {BLOCK_VARIANTS.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                    ) : null}
+                  </div>
+
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => moveBlock(block.key, -1)}
+                      disabled={busy || index === 0}
+                      aria-label="Move block up"
+                      className="rounded-lg px-2 py-1 text-sm text-black/55 hover:bg-black/5 disabled:opacity-30"
+                    >
+                      ↑
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => moveBlock(block.key, 1)}
+                      disabled={busy || index === blocks.length - 1}
+                      aria-label="Move block down"
+                      className="rounded-lg px-2 py-1 text-sm text-black/55 hover:bg-black/5 disabled:opacity-30"
+                    >
+                      ↓
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => removeBlock(block.key)}
+                      disabled={busy}
+                      className="rounded-lg px-2 py-1 text-sm font-semibold text-red-600 hover:bg-red-50 disabled:opacity-30"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </div>
+
+                {block.type === "IMAGE" ? (
+                  <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-start">
+                    <div className="shrink-0">
+                      {mediaUrl(block.imageUrl) ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={mediaUrl(block.imageUrl)}
+                          alt={block.imageAlt || "Selected block image"}
+                          className="h-28 w-28 rounded-lg border border-black/10 object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-28 w-28 items-center justify-center rounded-lg border border-dashed border-black/20 bg-white text-center text-[11px] text-black/35">
+                          No image yet
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="min-w-0 flex-1 space-y-3">
+                      <div>
+                        <input
+                          type="text"
+                          value={block.heading}
+                          onChange={setBlockField(block.key, "heading")}
+                          disabled={busy}
+                          placeholder="Block name, e.g. The Problem With Pressure"
+                          aria-label="Block name"
+                          className={`${inputClass} mt-0 text-sm`}
+                        />
+                        <p className="mt-1.5 font-mono text-[11px] text-black/40">
+                          {blockFolder(block)}/
+                        </p>
+                      </div>
+
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp,image/avif"
+                        onChange={handleBlockFile(block.key)}
+                        disabled={busy}
+                        aria-label="Upload block image"
+                        className="font-nav block w-full text-sm text-black/60 file:mr-4 file:border-0 file:bg-navy file:px-3 file:py-2 file:text-xs file:font-bold file:tracking-[0.08em] file:text-white file:uppercase hover:file:bg-navy/90 disabled:opacity-50"
+                      />
+                      {uploadingBlockKey === block.key ? (
+                        <p role="status" className="text-sm text-black/55">
+                          Uploading…
+                        </p>
+                      ) : null}
+
+                      <input
+                        type="text"
+                        value={block.imageAlt}
+                        onChange={setBlockField(block.key, "imageAlt")}
+                        disabled={busy}
+                        placeholder="Describe what is in the photo"
+                        aria-label="Image description"
+                        className={`${inputClass} mt-0 text-sm`}
+                      />
+                    </div>
+                  </div>
+                ) : null}
+
+                {block.type === "COLOR" ? (
+                  <div className="mt-4 flex items-center gap-3">
+                    <input
+                      type="color"
+                      value={/^#[0-9a-fA-F]{6}$/.test(block.colorHex) ? block.colorHex : "#2f6f4c"}
+                      onChange={setBlockField(block.key, "colorHex")}
+                      disabled={busy}
+                      aria-label="Panel colour"
+                      className="h-11 w-11 shrink-0 cursor-pointer rounded-lg border border-black/15 bg-white p-1"
+                    />
+                    <input
+                      type="text"
+                      value={block.colorHex}
+                      onChange={setBlockField(block.key, "colorHex")}
+                      disabled={busy}
+                      placeholder="#2f6f4c"
+                      aria-label="Panel colour hex value"
+                      className={`${inputClass} mt-0 max-w-[160px] font-mono text-sm`}
+                    />
+                  </div>
+                ) : null}
+
+                {block.type === "TEXT" ? (
+                  <div className="mt-4 space-y-3">
+                    <input
+                      type="text"
+                      value={block.heading}
+                      onChange={setBlockField(block.key, "heading")}
+                      disabled={busy}
+                      placeholder="What makes a brand thoughtful?"
+                      aria-label="Block heading"
+                      className={`${inputClass} mt-0`}
+                    />
+                    <textarea
+                      rows={4}
+                      value={block.body}
+                      onChange={setBlockField(block.key, "body")}
+                      disabled={busy}
+                      placeholder="The body copy for this section."
+                      aria-label="Block text"
+                      className={`${inputClass} resize-y`}
+                    />
+                  </div>
+                ) : null}
+              </div>
+            ))}
+
+            {!blocks.length ? (
+              <p className="text-sm text-black/45">
+                No content blocks yet — the post will show just its title,
+                byline and body.
+              </p>
+            ) : null}
+          </div>
+
+          <div className="mt-6 flex flex-wrap gap-3">
+            <button
+              type="button"
+              onClick={() => addBlock("IMAGE", "FULL")}
+              disabled={busy}
+              className="font-nav border border-black/15 px-4 py-2 text-xs font-bold tracking-[0.08em] text-navy uppercase transition-colors hover:bg-navy hover:text-white disabled:opacity-50"
+            >
+              + Full image
+            </button>
+            <button
+              type="button"
+              onClick={() => addBlock("IMAGE", "HALF", 2)}
+              disabled={busy}
+              className="font-nav border border-black/15 px-4 py-2 text-xs font-bold tracking-[0.08em] text-navy uppercase transition-colors hover:bg-navy hover:text-white disabled:opacity-50"
+            >
+              + Two half images
+            </button>
+            <button
+              type="button"
+              onClick={() => addBlock("COLOR", "HALF")}
+              disabled={busy}
+              className="font-nav border border-black/15 px-4 py-2 text-xs font-bold tracking-[0.08em] text-navy uppercase transition-colors hover:bg-navy hover:text-white disabled:opacity-50"
+            >
+              + Colour panel
+            </button>
+            <button
+              type="button"
+              onClick={() => addBlock("TEXT", "FULL")}
+              disabled={busy}
+              className="font-nav border border-black/15 px-4 py-2 text-xs font-bold tracking-[0.08em] text-navy uppercase transition-colors hover:bg-navy hover:text-white disabled:opacity-50"
+            >
+              + Heading &amp; text
+            </button>
           </div>
         </div>
       </div>
@@ -510,6 +936,27 @@ export default function BlogPostForm({ post = null }) {
                 placeholder="Olamide"
                 className={inputClass}
               />
+            </Field>
+
+            <Field
+              label="Category"
+              htmlFor="category"
+              hint="Managed under Categories. It is the badge on the blog index, and the folder this post's block images are filed under."
+            >
+              <select
+                id="category"
+                value={category?.slug ?? ""}
+                onChange={(event) => selectCategory(event.target.value)}
+                disabled={busy}
+                className={inputClass}
+              >
+                <option value="">No category</option>
+                {categories.map((option) => (
+                  <option key={option.slug} value={option.slug}>
+                    {option.name}
+                  </option>
+                ))}
+              </select>
             </Field>
 
             <TagEditor

@@ -19,6 +19,12 @@ const LIST_COLUMNS = `
 
 const FULL_COLUMNS = `${LIST_COLUMNS}, content`;
 
+// The ordered set pieces above a post's body.
+const BLOCK_COLUMNS = `
+  id, blog_post_id, sort_order, type, layout, variant,
+  heading, body, image_url, image_alt, color_hex
+`;
+
 // Newest first. A draft has no published_at at all, so created_at is the
 // tie-breaker that keeps unpublished posts in a sensible order on the admin
 // list instead of bunched at one end.
@@ -214,6 +220,48 @@ export const countByStatus = async () => {
     "SELECT status, COUNT(*) AS total FROM blog_posts GROUP BY status"
   );
   return rows;
+};
+
+// ---------------------------------------------------------------------------
+// Content blocks — the set pieces above a post's body.
+// ---------------------------------------------------------------------------
+
+export const findBlocksByBlogPostId = async (blogPostId) => {
+  const [rows] = await pool.query(
+    `SELECT ${BLOCK_COLUMNS} FROM blog_post_blocks
+     WHERE blog_post_id = ?
+     ORDER BY sort_order ASC, id ASC`,
+    [blogPostId]
+  );
+  return rows;
+};
+
+// A full replace: every existing block is dropped and the list sent in is
+// inserted in its place, in the order given. Simpler than diffing an old set
+// of blocks against a new one, and the admin form always has the whole list
+// in hand anyway — there is no partial "edit block 3" interaction to support.
+export const replaceBlocks = async (blogPostId, blocks) => {
+  await pool.query("DELETE FROM blog_post_blocks WHERE blog_post_id = ?", [blogPostId]);
+
+  for (const [index, block] of blocks.entries()) {
+    await pool.query(
+      `INSERT INTO blog_post_blocks
+         (blog_post_id, sort_order, type, layout, variant, heading, body, image_url, image_alt, color_hex)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        blogPostId,
+        index,
+        block.type,
+        block.layout,
+        block.variant,
+        block.heading,
+        block.body,
+        block.imageUrl,
+        block.imageAlt,
+        block.colorHex,
+      ]
+    );
+  }
 };
 
 // Every tags value in use, for the filter dropdown. Splitting one comma-joined

@@ -3,7 +3,7 @@ import path from "node:path";
 import * as blogModel from "../models/blog-post.model.js";
 import { BLOG_POST_STATUSES } from "../models/blog-post.model.js";
 import { slugify } from "../validators/blog-post.validator.js";
-import { blogUploadsDir } from "../middleware/upload.middleware.js";
+import { uploadsDir, blogUploadsDir } from "../middleware/upload.middleware.js";
 import { sendSuccess } from "../utils/response.js";
 import { AppError } from "../utils/app-error.js";
 
@@ -41,6 +41,8 @@ const toTagColumn = (tags) => (tags.length ? tags.join(",") : null);
 // leave it out - so it is only added to the response when it is really there.
 // An undefined key disappears from JSON, which is the right answer: the list
 // should not hand back an empty body that looks like a post with nothing in it.
+//
+// `blocks` follows the same rule, and for the same reason.
 const toApiPost = (row) => ({
   id: row.id,
   title: row.title,
@@ -56,7 +58,28 @@ const toApiPost = (row) => ({
   publishedAt: row.published_at,
   createdAt: row.created_at,
   updatedAt: row.updated_at,
+  ...(row.blocks !== undefined ? { blocks: row.blocks.map(toApiBlock) } : {}),
 });
+
+const toApiBlock = (row) => ({
+  id: row.id,
+  type: row.type,
+  layout: row.layout,
+  variant: row.variant,
+  heading: row.heading,
+  body: row.body,
+  imageUrl: row.image_url,
+  imageAlt: row.image_alt,
+  colorHex: row.color_hex,
+});
+
+// Attaches a post's ordered blocks to the row before it goes through
+// toApiPost, which only serialises them when the key is present.
+const withBlocks = async (post) => {
+  if (!post) return post;
+  const blocks = await blogModel.findBlocksByBlogPostId(post.id);
+  return { ...post, blocks };
+};
 
 // Finds a slug nothing else is using: the one asked for, or that with -2, -3
 // and so on after it. Two posts with the same title - a yearly round-up, say -
@@ -84,16 +107,20 @@ const uniqueSlug = async (wanted, excludeId = null) => {
 // Only images this API wrote are ever deleted, and only ones that are really
 // inside the blog uploads folder. cover_image_url can also point at a file in
 // the website's own public folder, which is not ours to remove.
+//
+// Images now live up to two folders deeper -
+// uploads/blog/<category>/<block>/<file> - so this resolves the whole
+// remainder of the path, not just the basename.
 const removeUploadedImage = async (imageUrl) => {
   if (!imageUrl || !imageUrl.startsWith("/uploads/blog/")) return;
 
-  const filename = path.basename(imageUrl);
-  const target = path.resolve(blogUploadsDir, filename);
+  const relative = imageUrl.slice("/uploads/blog/".length);
+  const target = path.resolve(blogUploadsDir, relative);
 
-  // path.basename already strips any directory part, so nothing can climb out
-  // of the folder. This is the belt to that braces: resolve the path and check
-  // it really is where we think it is before unlinking anything.
-  if (path.dirname(target) !== path.resolve(blogUploadsDir)) return;
+  // Resolving and checking the result is still inside the folder is what
+  // stops a "../../" in the remainder from climbing out of it.
+  const base = path.resolve(blogUploadsDir) + path.sep;
+  if (!target.startsWith(base)) return;
 
   // A missing file is fine - the row is going either way, and a failed delete
   // must not fail the request.
@@ -173,7 +200,9 @@ export const getPublishedPost = async (req, res, next) => {
       throw new AppError("Post not found.", 404);
     }
 
-    return sendSuccess(res, 200, "Post loaded.", { post: toApiPost(post) });
+    return sendSuccess(res, 200, "Post loaded.", {
+      post: toApiPost(await withBlocks(post)),
+    });
   } catch (error) {
     next(error);
   }
@@ -254,7 +283,9 @@ export const getPost = async (req, res, next) => {
       throw new AppError("Post not found.", 404);
     }
 
-    return sendSuccess(res, 200, "Post loaded.", { post: toApiPost(post) });
+    return sendSuccess(res, 200, "Post loaded.", {
+      post: toApiPost(await withBlocks(post)),
+    });
   } catch (error) {
     next(error);
   }
@@ -281,9 +312,13 @@ export const createPost = async (req, res, next) => {
       publishedAt,
     });
 
+    await blogModel.replaceBlocks(id, body.blocks);
+
     const post = await blogModel.findById(id);
 
-    return sendSuccess(res, 201, "Post created.", { post: toApiPost(post) });
+    return sendSuccess(res, 201, "Post created.", {
+      post: toApiPost(await withBlocks(post)),
+    });
   } catch (error) {
     next(error);
   }
@@ -342,6 +377,13 @@ export const updatePost = async (req, res, next) => {
 
     await blogModel.updateBlogPost(id, merged);
 
+    // Undefined means the form's block list was never sent - leave the
+    // existing blocks alone. An explicit [] is how the form says "delete
+    // them all", the same rule every other field here follows.
+    if (body.blocks !== undefined) {
+      await blogModel.replaceBlocks(id, body.blocks);
+    }
+
     // The cover was replaced, so the file the old row pointed at is orphaned.
     // Clean it up after the row is safely saved, never before.
     if (
@@ -353,7 +395,9 @@ export const updatePost = async (req, res, next) => {
 
     const post = await blogModel.findById(id);
 
-    return sendSuccess(res, 200, "Post saved.", { post: toApiPost(post) });
+    return sendSuccess(res, 200, "Post saved.", {
+      post: toApiPost(await withBlocks(post)),
+    });
   } catch (error) {
     next(error);
   }
@@ -417,14 +461,21 @@ export const deletePost = async (req, res, next) => {
 // Returns the path to store, not the file. The form saves that path with the
 // rest of the record, which is what lets an admin swap the cover and then
 // abandon the edit - the file is on disk, but no row points at it.
+//
+// The file may have landed in a <category>/<block> subfolder (see the
+// `folder` field the upload middleware reads) or, without one, straight in
+// the top-level blog folder - so the URL is built from where the file
+// actually was written rather than assumed.
 export const uploadImage = async (req, res, next) => {
   try {
     if (!req.file) {
       throw new AppError("Please choose an image to upload.", 400);
     }
 
+    const relative = path.relative(uploadsDir, req.file.path).split(path.sep).join("/");
+
     return sendSuccess(res, 201, "Image uploaded.", {
-      imageUrl: `/uploads/blog/${req.file.filename}`,
+      imageUrl: `/uploads/${relative}`,
     });
   } catch (error) {
     next(error);

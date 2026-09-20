@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { watchReveal } from "./reveal-observer";
 
 // Scroll-triggered entrance wrapper.
 //
@@ -15,6 +16,11 @@ import { useEffect, useRef, useState } from "react";
 //           read as a different gesture from the prose around them.
 //   right — the mirror of left, fades in from the right. Pairs with left
 //           on two-line headlines so the lines converge from opposite sides.
+//   wide-left / wide-right — same pairing as left/right but with much
+//           longer travel (16vw), for a hero-scale entrance where the line
+//           should visibly fly in from past the section's edge. Only use
+//           inside an overflow-hidden ancestor, since the start position
+//           sits outside the element's own box.
 //   mask  — the element clips its own overflow and its child slides up
 //           from behind the bottom edge. Built for single blocks of
 //           display type; the child must be one element.
@@ -22,34 +28,6 @@ import { useEffect, useRef, useState } from "react";
 //           slight zoom. Built for images.
 //   roll  — a 3D tip-up on the element's own bottom edge (rotateX +
 //           translate), for a modern "rolling" entrance on cards/blocks.
-
-// One observer for the whole page rather than one per element. Each target
-// carries its own callback in the map and is dropped the moment it fires,
-// so a reveal only ever plays once.
-const callbacks = new WeakMap();
-let observer = null;
-
-function getObserver() {
-  if (!observer) {
-    observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (!entry.isIntersecting) continue;
-          observer.unobserve(entry.target);
-          const show = callbacks.get(entry.target);
-          callbacks.delete(entry.target);
-          if (show) show();
-        }
-      },
-      // The bottom inset holds a reveal back until the element is properly
-      // in view instead of firing the instant its first pixel appears. The
-      // low threshold keeps tall blocks — which can never reach 25% on a
-      // short viewport — from being stranded.
-      { rootMargin: "0px 0px -10% 0px", threshold: 0.12 },
-    );
-  }
-  return observer;
-}
 
 export default function Reveal({
   as: Tag = "div",
@@ -66,16 +44,7 @@ export default function Reveal({
     const el = ref.current;
     if (!el) return;
 
-    // Anything already on screen at mount — the hero — intersects on the
-    // observer's first pass, so it plays immediately without a scroll.
-    const io = getObserver();
-    callbacks.set(el, () => setShown(true));
-    io.observe(el);
-
-    return () => {
-      io.unobserve(el);
-      callbacks.delete(el);
-    };
+    return watchReveal(el, () => setShown(true));
   }, []);
 
   return (

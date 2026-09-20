@@ -15,13 +15,17 @@ export default function HomeHero() {
     <section className="overflow-hidden bg-footer">
       <div className="mx-auto max-w-[1600px] px-5 pt-12 md:px-10 md:pt-16 lg:px-20 lg:pt-20">
         {/* Fixed two-line break: the accent phrase has to sit on the second
-            line beside "GOOD." rather than wrap on its own. */}
-        <Reveal as="h1" variant="up" className="font-headline text-[2rem] leading-[1.2] tracking-[-0.01em] text-foreground uppercase sm:text-[3.25rem] md:text-[4rem] lg:text-[5rem]">
-          <span className="block">Your brand looks</span>
-          <span className="block">
+            line beside "GOOD." rather than wrap on its own. Each line flies
+            in from its own edge — wide-left/wide-right — so they converge
+            into place on load instead of just fading up. */}
+        <h1 className="font-headline text-[2rem] leading-[1.2] tracking-[-0.01em] text-foreground uppercase sm:text-[3.25rem] md:text-[4rem] lg:text-[5rem]">
+          <Reveal as="span" variant="wide-left" className="block">
+            Your brand looks
+          </Reveal>
+          <Reveal as="span" variant="wide-right" delay={150} className="block">
             Good. <span className="text-accent">Is it working?</span>
-          </span>
-        </Reveal>
+          </Reveal>
+        </h1>
 
         <Reveal
           as="p"

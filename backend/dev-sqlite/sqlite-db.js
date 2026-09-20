@@ -4,14 +4,31 @@ import { DatabaseSync } from "node:sqlite";
 import { fileURLToPath } from "node:url";
 import { hashPassword } from "../utils/password.js";
 import { CASE_STUDIES } from "../database/seed/case-studies.data.js";
+import { BLOG_POSTS } from "../database/seed/blog-posts.data.js";
 
-// The same three categories database/seed/categories.seed.js inserts, so the
-// blog page's category filter is not empty when the panel is run against
-// SQLite.
-const CATEGORIES = [
+// The same categories database/seed/categories.seed.js inserts, so the blog
+// page's category filter is not empty when the panel is run against SQLite.
+const BLOG_CATEGORIES = [
   { name: "Brand Strategy", slug: "brand-strategy" },
   { name: "Visual Identity", slug: "visual-identity" },
   { name: "Brand Activation", slug: "brand-activation" },
+  { name: "Branding", slug: "branding" },
+];
+
+const slugifyName = (name) =>
+  name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+
+const blogSlugs = new Set(BLOG_CATEGORIES.map((category) => category.slug));
+const CATEGORIES = [
+  ...BLOG_CATEGORIES.map((category) => ({ ...category, type: "blog" })),
+  ...[...new Set(CASE_STUDIES.flatMap((study) => study.categories ?? []))].map((name) => {
+    const slug = slugifyName(name);
+    return {
+      name,
+      slug: blogSlugs.has(slug) ? `${slug}-case-study` : slug,
+      type: "case_study",
+    };
+  }),
 ];
 
 // A stand-in for config/db.js, backed by the SQLite that ships inside Node.
@@ -92,7 +109,16 @@ const applyMigrations = () => {
     if (createTable) {
       db.exec(toSqliteDdl(sql, createTable));
     } else if (alterTable) {
+      // Re-run on every server start (there's no migrations-applied table),
+      // so a column ADD COLUMN already added on a prior run must be skipped
+      // rather than re-executed - SQLite has no IF NOT EXISTS for columns.
+      const existingColumns = new Set(
+        db.prepare(`PRAGMA table_info(${alterTable})`).all().map((column) => column.name)
+      );
+
       for (const statement of toSqliteAlter(sql, alterTable)) {
+        const columnName = statement.match(/ADD COLUMN\s+(\w+)/i)?.[1];
+        if (columnName && existingColumns.has(columnName)) continue;
         db.exec(statement);
       }
     } else {
@@ -101,7 +127,15 @@ const applyMigrations = () => {
   }
 
   // MySQL's ON UPDATE CURRENT_TIMESTAMP, written out by hand.
-  for (const table of ["admins", "enquiries", "case_studies", "blog_posts", "categories"]) {
+  for (const table of [
+    "admins",
+    "enquiries",
+    "case_studies",
+    "case_study_blocks",
+    "blog_posts",
+    "blog_post_blocks",
+    "categories",
+  ]) {
     db.exec(`
       CREATE TRIGGER IF NOT EXISTS ${table}_updated_at
       AFTER UPDATE ON ${table}
@@ -130,39 +164,139 @@ const seedAdmin = async () => {
 
 // The same four studies database/seed/case-studies.seed.js inserts, so the
 // website's portfolio is not empty when the panel is run against SQLite.
+//
+// And the same rules on a second run: a study that is already there keeps
+// what it has, but a detail field still empty gets filled and a study with no
+// blocks at all gets the standard set - so a dev database made before the
+// detail pages existed catches up instead of staying a bare hero.
 const seedCaseStudies = () => {
+  const insertBlock = db.prepare(
+    `INSERT INTO case_study_blocks
+       (case_study_id, sort_order, type, layout, variant, heading, body, image_url, image_alt, color_hex)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+  );
+
+  const insertBlocks = (caseStudyId, blocks) => {
+    blocks.forEach((block, index) => {
+      insertBlock.run(
+        caseStudyId,
+        index,
+        block.type,
+        block.layout ?? "FULL",
+        block.variant ?? "DEFAULT",
+        block.heading ?? null,
+        block.body ?? null,
+        block.imageUrl ?? null,
+        block.imageAlt ?? null,
+        block.colorHex ?? null
+      );
+    });
+  };
+
   for (const study of CASE_STUDIES) {
     const existing = db.prepare("SELECT id FROM case_studies WHERE slug = ?").get(study.slug);
-    if (existing) continue;
 
-    db.prepare(
-      `INSERT INTO case_studies
-         (title, slug, client, service, summary, image_url, image_alt, status, sort_order, published_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, 'PUBLISHED', ?, datetime('now'))`
-    ).run(
-      study.title,
-      study.slug,
-      study.client,
-      study.service,
-      study.summary,
-      study.imageUrl,
-      study.imageAlt,
-      study.sortOrder
-    );
+    if (existing) {
+      // NULLIF so an empty string counts as unfilled too; anything an admin
+      // actually typed is left exactly as it is.
+      db.prepare(
+        `UPDATE case_studies
+            SET tagline    = COALESCE(NULLIF(tagline, ''), ?),
+                categories = COALESCE(NULLIF(categories, ''), ?),
+                intro      = COALESCE(NULLIF(intro, ''), ?)
+          WHERE id = ?`
+      ).run(
+        study.tagline ?? null,
+        study.categories ? study.categories.join(", ") : null,
+        study.intro ? study.intro.join("\n\n") : null,
+        existing.id
+      );
+
+      const { blockCount } = db
+        .prepare("SELECT COUNT(*) AS blockCount FROM case_study_blocks WHERE case_study_id = ?")
+        .get(existing.id);
+
+      if (blockCount === 0 && study.blocks?.length) {
+        insertBlocks(existing.id, study.blocks);
+        console.log(`[sqlite] filled in ${study.slug} with ${study.blocks.length} block(s)`);
+      }
+
+      continue;
+    }
+
+    const result = db
+      .prepare(
+        `INSERT INTO case_studies
+           (title, slug, client, service, summary, image_url, image_alt, status, sort_order, published_at,
+            tagline, categories, intro)
+         VALUES (?, ?, ?, ?, ?, ?, ?, 'PUBLISHED', ?, datetime('now'), ?, ?, ?)`
+      )
+      .run(
+        study.title,
+        study.slug,
+        study.client,
+        study.service,
+        study.summary,
+        study.imageUrl,
+        study.imageAlt,
+        study.sortOrder,
+        study.tagline ?? null,
+        study.categories ? study.categories.join(", ") : null,
+        study.intro ? study.intro.join("\n\n") : null
+      );
 
     console.log(`[sqlite] seeded case study ${study.slug}`);
+
+    if (study.blocks?.length) {
+      insertBlocks(Number(result.lastInsertRowid), study.blocks);
+      console.log(`[sqlite] seeded ${study.blocks.length} block(s) for ${study.slug}`);
+    }
   }
 };
 
-// The same three categories database/seed/categories.seed.js inserts.
+// The same posts database/seed/blog-posts.seed.js inserts, so /insights and
+// the post pages it links to are not empty when the panel is run against
+// SQLite. Same rule on a second run: a post already there is left alone.
+const seedBlogPosts = () => {
+  const WORDS_PER_MINUTE = 200;
+
+  for (const post of BLOG_POSTS) {
+    const existing = db.prepare("SELECT id FROM blog_posts WHERE slug = ?").get(post.slug);
+    if (existing) continue;
+
+    const words = post.content.trim().split(/\s+/).filter(Boolean).length;
+
+    db.prepare(
+      `INSERT INTO blog_posts
+         (title, slug, excerpt, content, author, tags, cover_image_url,
+          cover_image_alt, reading_time, status, published_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'PUBLISHED', datetime('now'))`
+    ).run(
+      post.title,
+      post.slug,
+      post.excerpt,
+      post.content,
+      post.author,
+      post.tags.length ? post.tags.join(",") : null,
+      post.coverImageUrl,
+      post.coverImageAlt,
+      Math.max(1, Math.ceil(words / WORDS_PER_MINUTE))
+    );
+
+    console.log(`[sqlite] seeded blog post ${post.slug}`);
+  }
+};
+
+// The same categories database/seed/categories.seed.js inserts.
 const seedCategories = () => {
   for (const category of CATEGORIES) {
     const existing = db.prepare("SELECT id FROM categories WHERE slug = ?").get(category.slug);
     if (existing) continue;
 
-    db.prepare("INSERT INTO categories (name, slug) VALUES (?, ?)").run(
+    db.prepare("INSERT INTO categories (name, slug, type) VALUES (?, ?, ?)").run(
       category.name,
-      category.slug
+      category.slug,
+      category.type
     );
 
     console.log(`[sqlite] seeded category ${category.slug}`);
@@ -173,6 +307,7 @@ applyMigrations();
 await seedAdmin();
 seedCaseStudies();
 seedCategories();
+seedBlogPosts();
 
 // ---------------------------------------------------------------------------
 // Queries
