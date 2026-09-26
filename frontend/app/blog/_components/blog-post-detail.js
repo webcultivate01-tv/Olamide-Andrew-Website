@@ -5,6 +5,8 @@ import { mediaUrl } from "@/lib/api";
 import Reveal from "../../components/reveal";
 import RevealWords from "../../components/reveal-words";
 import ContentBlocks from "../../components/content-blocks";
+import BlogDiscoveryCta from "./blog-discovery-cta";
+import BlogMobileContact from "./blog-mobile-contact";
 import InsightsCta from "../../insights/_components/insights-cta";
 import { withPalette, displayCategory } from "../../insights/_components/categories";
 
@@ -61,7 +63,7 @@ export default function BlogPostDetail({ post, categories = [], otherPosts = [] 
     // the page, but `overflow-x: hidden` forces the other axis to `auto`,
     // which would make this article a scroll container.
     <article className="overflow-x-clip bg-background">
-      <div className={`${SHELL} py-14 md:py-20 lg:py-24`}>
+      <div className={`${SHELL} pt-14 pb-6 md:pt-20 md:pb-8 lg:pt-24`}>
         <Reveal as="nav" className="text-sm text-black/55 md:text-[15px]" aria-label="Breadcrumb">
           <Link href="/insights" className="transition-colors hover:text-navy">
             Blog
@@ -80,7 +82,7 @@ export default function BlogPostDetail({ post, categories = [], otherPosts = [] 
           as="h1"
           text={post.title}
           step={45}
-          className="font-headline mt-5 text-3xl leading-[1.05] tracking-[-0.01em] text-foreground uppercase sm:text-4xl md:text-5xl lg:text-[3.4rem]"
+          className="font-headline mt-5 text-[40px] leading-[1.15] tracking-[-0.01em] text-foreground uppercase md:text-[48px] lg:text-[56px] lg:leading-[1.1]"
         />
 
         {post.excerpt ? (
@@ -103,13 +105,13 @@ export default function BlogPostDetail({ post, categories = [], otherPosts = [] 
         </Reveal>
 
         {coverSrc ? (
-          <Reveal variant="wipe" delay={220} className="mt-10 overflow-hidden rounded-2xl">
-            <div className="relative aspect-[1440/726] w-full">
+          <Reveal variant="wipe" delay={220} className="mt-10 max-w-[1280px] overflow-hidden rounded-2xl">
+            <div className="relative aspect-[370/200] w-full md:aspect-[1280/684]">
               <Image
                 src={coverSrc}
                 alt={post.coverImageAlt || post.title || ""}
                 fill
-                sizes="(min-width: 1600px) 1440px, 100vw"
+                sizes="(min-width: 1280px) 1280px, 100vw"
                 className="object-cover"
                 priority
               />
@@ -124,7 +126,7 @@ export default function BlogPostDetail({ post, categories = [], otherPosts = [] 
             second child of the wipe above, whose scale-and-settle is meant for
             the image face and would drag the caption through a zoom with it. */}
         {coverSrc && post.coverImageAlt ? (
-          <Reveal as="p" delay={320} className="mt-4 text-center text-sm text-black/55">
+          <Reveal as="p" delay={320} className="mt-4 text-center text-2xl font-medium text-black/55">
             {post.coverImageAlt}
           </Reveal>
         ) : null}
@@ -141,7 +143,7 @@ export default function BlogPostDetail({ post, categories = [], otherPosts = [] 
           the same scale as one typed into a content block. The measure is
           capped below the shell so a line of body copy stays readable even
           though it starts on the page's own gutter. */}
-      <div className={`${SHELL} py-14 md:py-16`}>
+      <div className={`${SHELL} pt-6 pb-14 md:pt-8 md:pb-16`}>
         <Reveal as="div" className="blog-prose max-w-[1200px]">
           <Markdown>{post.content}</Markdown>
         </Reveal>
@@ -174,6 +176,8 @@ export default function BlogPostDetail({ post, categories = [], otherPosts = [] 
       ) : null}
 
       <InsightsCta />
+      <BlogDiscoveryCta />
+      <BlogMobileContact />
     </article>
   );
 }

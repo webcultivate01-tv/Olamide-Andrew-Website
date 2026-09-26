@@ -11,6 +11,7 @@ import {
   mediaUrl,
   updateCaseStudy,
   uploadCaseStudyImage,
+  uploadBlockImage,
 } from "@/lib/api";
 import CaseStudyPreview from "./case-study-preview";
 
@@ -284,12 +285,18 @@ export default function CaseStudyForm({ study = null }) {
   // Same reasoning as the cover image: uploaded the moment it is chosen, so
   // the preview in the block shows the real file rather than a blob that
   // might never reach the server.
-  const uploadBlockImage = async (key, file) => {
+  const uploadBlockFile = async (key, file) => {
     setUploadingBlockKey(key);
     setError("");
 
     try {
-      const payload = await uploadCaseStudyImage(file, uploadFolder());
+      // uploads/blocks/<category>/<block title>/ - either part falls back to
+      // a placeholder so choosing a file before naming the block still works.
+      const block = blocks.find((candidate) => candidate.key === key);
+      const folder = `${slugify(block?.category || "") || "uncategorised"}/${
+        slugify(block?.heading || "") || "block"
+      }`;
+      const payload = await uploadBlockImage(file, folder);
       setBlocks((current) =>
         current.map((block) =>
           block.key === key ? { ...block, imageUrl: payload.data.imageUrl } : block
@@ -306,7 +313,7 @@ export default function CaseStudyForm({ study = null }) {
     const file = event.target.files?.[0];
     // Cleared so picking the same file twice in a row still fires a change.
     event.target.value = "";
-    if (file) uploadBlockImage(key, file);
+    if (file) uploadBlockFile(key, file);
   };
 
   const handleSubmit = async (event) => {
@@ -409,7 +416,7 @@ export default function CaseStudyForm({ study = null }) {
           onValue={setValue}
           onCoverFile={uploadCover}
           onBlockField={setBlockValue}
-          onBlockFile={uploadBlockImage}
+          onBlockFile={uploadBlockFile}
           onAddBlock={addBlock}
           onMoveBlock={moveBlock}
           onRemoveBlock={removeBlock}

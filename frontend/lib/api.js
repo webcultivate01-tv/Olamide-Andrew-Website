@@ -274,6 +274,18 @@ export const uploadPostImage = (file, folder) => {
   return request("/api/admin/blog/image", { method: "POST", body: form });
 };
 
+// Block images, for case studies and blog posts alike. `folder` is
+// "<category>/<block title>" (both slugged), which files the image under
+// uploads/blocks/<category>/<block title>/ - appended before the file so the
+// API sees it in time.
+export const uploadBlockImage = (file, folder) => {
+  const form = new FormData();
+  if (folder) form.append("folder", folder);
+  form.append("image", file);
+
+  return request("/api/admin/blocks/image", { method: "POST", body: form });
+};
+
 export const POST_STATUSES = [
   { value: "DRAFT", label: "Draft" },
   { value: "PUBLISHED", label: "Published" },

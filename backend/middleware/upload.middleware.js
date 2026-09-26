@@ -34,6 +34,9 @@ export const uploadsDir = path.join(
 export const caseStudyUploadsDir = path.join(uploadsDir, "case-studies");
 export const blogUploadsDir = path.join(uploadsDir, "blog");
 export const adminUploadsDir = path.join(uploadsDir, "admins");
+// Images belonging to content blocks - case study and blog alike - filed as
+// uploads/blocks/<category>/<block title>/<file>.
+export const blocksUploadsDir = path.join(uploadsDir, "blocks");
 
 // The folders are created on startup rather than on the first upload, so a
 // permissions problem shows up while the server is booting instead of halfway
@@ -41,6 +44,7 @@ export const adminUploadsDir = path.join(uploadsDir, "admins");
 fs.mkdirSync(caseStudyUploadsDir, { recursive: true });
 fs.mkdirSync(blogUploadsDir, { recursive: true });
 fs.mkdirSync(adminUploadsDir, { recursive: true });
+fs.mkdirSync(blocksUploadsDir, { recursive: true });
 
 // The MIME types allowed, and the extension each is stored under. Going from
 // the type to the extension - rather than trusting the one in the filename -
@@ -146,4 +150,5 @@ const makeImageUpload = (destination) => {
 
 export const handleCaseStudyImageUpload = makeImageUpload(caseStudyUploadsDir);
 export const handleBlogImageUpload = makeImageUpload(blogUploadsDir);
+export const handleBlockImageUpload = makeImageUpload(blocksUploadsDir);
 export const handleAdminAvatarUpload = makeImageUpload(adminUploadsDir);

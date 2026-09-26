@@ -9,6 +9,7 @@ import { requireAuth } from "../middleware/auth.middleware.js";
 import {
   handleCaseStudyImageUpload,
   handleBlogImageUpload,
+  handleBlockImageUpload,
   handleAdminAvatarUpload,
 } from "../middleware/upload.middleware.js";
 import {
@@ -170,6 +171,9 @@ router.get("/blog/stats", blogController.getPostStats);
 router.get("/blog/tags", blogController.getAllTags);
 
 router.post("/blog/image", handleBlogImageUpload, blogController.uploadImage);
+
+// Block images for both case studies and posts: uploads/blocks/<category>/<block>/.
+router.post("/blocks/image", handleBlockImageUpload, blogController.uploadImage);
 
 router.post("/blog", validateBody(createBlogPostSchema), blogController.createPost);
 

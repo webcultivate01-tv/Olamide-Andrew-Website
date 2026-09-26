@@ -21,7 +21,7 @@ const FULL_COLUMNS = `${LIST_COLUMNS}, content`;
 
 // The ordered set pieces above a post's body.
 const BLOCK_COLUMNS = `
-  id, blog_post_id, sort_order, type, layout, variant,
+  id, blog_post_id, sort_order, type, layout, category, variant,
   heading, body, image_url, image_alt, color_hex
 `;
 
@@ -246,13 +246,14 @@ export const replaceBlocks = async (blogPostId, blocks) => {
   for (const [index, block] of blocks.entries()) {
     await pool.query(
       `INSERT INTO blog_post_blocks
-         (blog_post_id, sort_order, type, layout, variant, heading, body, image_url, image_alt, color_hex)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+         (blog_post_id, sort_order, type, layout, category, variant, heading, body, image_url, image_alt, color_hex)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         blogPostId,
         index,
         block.type,
         block.layout,
+        block.category,
         block.variant,
         block.heading,
         block.body,

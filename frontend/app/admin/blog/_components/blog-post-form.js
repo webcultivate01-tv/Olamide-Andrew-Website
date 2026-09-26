@@ -11,8 +11,10 @@ import {
   mediaUrl,
   updatePost,
   uploadPostImage,
+  uploadBlockImage,
 } from "@/lib/api";
 import { categoryForTags } from "@/app/insights/_components/categories";
+import BlogPostPreview from "./blog-post-preview";
 
 /**
  * One form for both writing and editing a post.
@@ -103,6 +105,7 @@ const emptyBlock = (type, layout = "FULL") => ({
   key: nextBlockKey(),
   type,
   layout,
+  category: "",
   variant: "DEFAULT",
   heading: "",
   body: "",
@@ -116,6 +119,7 @@ const toFormBlocks = (blocks) =>
     key: nextBlockKey(),
     type: block.type,
     layout: block.layout ?? "FULL",
+    category: block.category ?? "",
     variant: block.variant ?? "DEFAULT",
     heading: block.heading ?? "",
     body: block.body ?? "",
@@ -302,28 +306,28 @@ export default function BlogPostForm({ post = null }) {
     setErrors((current) => (current.tags ? { ...current, tags: undefined } : current));
   };
 
-  const setField = (name) => (event) => {
-    const { value } = event.target;
+  // Both the live preview and the fields below it write through here, so the
+  // two can never disagree about what the post currently says.
+  const setValue = (name, value) => {
     setValues((current) => ({ ...current, [name]: value }));
     // Clear the message for this field as soon as it is edited — leaving it
     // under a box the admin has already fixed just reads as broken.
     setErrors((current) => (current[name] ? { ...current, [name]: undefined } : current));
   };
 
+  const setField = (name) => (event) => setValue(name, event.target.value);
+
   // The file is uploaded the moment it is chosen, and what comes back is a
   // path stored in the form like any other value. Waiting for submit would
   // mean the preview showed a local blob that might never reach the server.
-  const handleFile = async (event) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
+  const uploadCover = async (file) => {
     setUploading(true);
     setError("");
     setErrors((current) => ({ ...current, coverImageUrl: undefined }));
 
     try {
       const payload = await uploadPostImage(file);
-      setValues((current) => ({ ...current, coverImageUrl: payload.data.imageUrl }));
+      setValue("coverImageUrl", payload.data.imageUrl);
       setMessage("Image uploaded. It is saved with the post when you press save.");
     } catch (requestError) {
       setError(requestError.message);
@@ -332,6 +336,11 @@ export default function BlogPostForm({ post = null }) {
       // Cleared so choosing the same file again still fires a change event.
       if (fileInput.current) fileInput.current.value = "";
     }
+  };
+
+  const handleFile = (event) => {
+    const file = event.target.files?.[0];
+    if (file) uploadCover(file);
   };
 
   // `count` is what the "two half images" button uses: a pair is the thing
@@ -379,13 +388,13 @@ export default function BlogPostForm({ post = null }) {
   // Same reasoning as the cover image: uploaded the moment it is chosen, so
   // the block shows the real file rather than a blob that might never reach
   // the server.
-  const uploadBlockImage = async (key, file) => {
+  const uploadBlockFile = async (key, file) => {
     setUploadingBlockKey(key);
     setError("");
 
     try {
       const block = blocks.find((candidate) => candidate.key === key);
-      const payload = await uploadPostImage(file, blockFolder(block));
+      const payload = await uploadBlockImage(file, blockFolder(block));
       setBlockValue(key, "imageUrl", payload.data.imageUrl);
     } catch (requestError) {
       setError(requestError.message);
@@ -398,7 +407,7 @@ export default function BlogPostForm({ post = null }) {
     const file = event.target.files?.[0];
     // Cleared so picking the same file twice in a row still fires a change.
     event.target.value = "";
-    if (file) uploadBlockImage(key, file);
+    if (file) uploadBlockFile(key, file);
   };
 
   const handleSubmit = async (event) => {
@@ -423,6 +432,7 @@ export default function BlogPostForm({ post = null }) {
       status: values.status,
       blocks: blocks.map(({ key, ...block }) => ({
         ...block,
+        category: block.category || null,
         heading: block.heading || null,
         body: block.body || null,
         imageUrl: block.imageUrl || null,
@@ -483,6 +493,31 @@ export default function BlogPostForm({ post = null }) {
       noValidate
       className="grid gap-6 lg:grid-cols-[1.6fr_1fr] lg:items-start"
     >
+      {/* The page itself ---------------------------------------------------- */}
+      {/* First, and across the whole width: a new post opens on the shape of
+          the page rather than on a column of empty boxes, so the cover image
+          goes straight into its slot and copy is typed where it will be
+          read. The fields below it are the same values in detail. */}
+      <div className="lg:col-span-2">
+        <BlogPostPreview
+          values={values}
+          tags={tags}
+          categories={categories}
+          blocks={blocks}
+          disabled={busy}
+          uploadingCover={uploading}
+          uploadingBlockKey={uploadingBlockKey}
+          readingMinutes={minutes}
+          onValue={setValue}
+          onCoverFile={uploadCover}
+          onBlockField={setBlockValue}
+          onBlockFile={uploadBlockFile}
+          onAddBlock={addBlock}
+          onMoveBlock={moveBlock}
+          onRemoveBlock={removeBlock}
+        />
+      </div>
+
       {/* Content ------------------------------------------------------------ */}
       <div className="space-y-6">
         <div className="rounded-2xl border border-black/10 bg-white p-6 md:p-8">
@@ -660,6 +695,12 @@ export default function BlogPostForm({ post = null }) {
             </span>
             . Name the block before choosing the file.
           </p>
+          <p className="mt-2 text-sm text-black/50">
+            A block&apos;s own category is just a label for organising the
+            page in this editor — the post itself still only shows under the
+            one category set under Publishing, so every block always shows on
+            the published post regardless of what it is tagged with here.
+          </p>
 
           {errors.blocks ? (
             <p role="alert" className="mt-4 text-sm text-red-700">
@@ -708,6 +749,28 @@ export default function BlogPostForm({ post = null }) {
                         ))}
                       </select>
                     ) : null}
+
+                    <select
+                      value={block.category}
+                      onChange={setBlockField(block.key, "category")}
+                      disabled={busy}
+                      aria-label="Block category"
+                      className="rounded-lg border border-black/15 bg-white px-3 py-1.5 text-sm text-foreground"
+                    >
+                      <option value="">No category</option>
+                      {/* A category the block already has but that was since
+                          removed from Categories still shows here, so saving
+                          the form does not silently drop it. */}
+                      {(categories.some((option) => option.slug === block.category) ||
+                      !block.category
+                        ? categories
+                        : [{ slug: block.category, name: block.category }, ...categories]
+                      ).map((option) => (
+                        <option key={option.slug} value={option.slug}>
+                          {option.name}
+                        </option>
+                      ))}
+                    </select>
                   </div>
 
                   <div className="flex items-center gap-1">

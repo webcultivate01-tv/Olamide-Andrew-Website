@@ -134,6 +134,12 @@ const blockSchema = z
       error: `Block type must be one of: ${BLOCK_TYPES.join(", ")}.`,
     }),
     layout: z.enum(BLOCK_LAYOUTS).default("FULL"),
+    // One of the admin's blog categories (categories.slug), or null for a
+    // block not tied to any of them. Not cross-checked against that list
+    // here - an admin can add the category first and the block second, or
+    // the reverse, in one save. Purely organisational: unlike case studies,
+    // the public post page does not filter blocks by it.
+    category: optionalText(60, "Block category"),
     variant: z.enum(BLOCK_VARIANTS).default("DEFAULT"),
     heading: optionalText(255, "Block heading"),
     body: optionalText(4000, "Block text"),

@@ -65,6 +65,7 @@ const toApiBlock = (row) => ({
   id: row.id,
   type: row.type,
   layout: row.layout,
+  category: row.category,
   variant: row.variant,
   heading: row.heading,
   body: row.body,
