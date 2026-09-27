@@ -46,7 +46,10 @@ export default function MyServices() {
   }
 
   return (
-    <section className="mx-auto max-w-[1600px] px-5 pt-16 md:px-10 md:pt-20 lg:px-20 lg:pt-24">
+    <section
+      id="services"
+      className="mx-auto max-w-[1600px] px-5 pt-16 md:px-10 md:pt-20 lg:px-20 lg:pt-24"
+    >
       <h2 className="font-headline text-center text-[2.25rem] leading-[1.05] tracking-[-0.01em] text-foreground uppercase md:text-[3.5rem] lg:text-[5.25rem]">
         My Services
       </h2>

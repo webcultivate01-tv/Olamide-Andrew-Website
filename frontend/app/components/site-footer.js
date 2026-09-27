@@ -4,7 +4,7 @@ import Wordmark from "./wordmark";
 const FOOTER_LINKS = [
   { label: "Case Studies", href: "/case-studies" },
   { label: "About", href: "/about" },
-  { label: "Services", href: "/services" },
+  { label: "Services", href: "/#services" },
   { label: "Insights", href: "/insights" },
   { label: "Contact", href: "/contact" },
 ];
