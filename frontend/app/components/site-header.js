@@ -12,7 +12,7 @@ const NAV_LINKS = [
   { label: "Insights", href: "/insights" },
 ];
 
-const CTA = { label: "Get in touch", href: "/contact" };
+const CTA = { label: "Free Brand Audit", href: "/contact" };
 
 function isActive(pathname, href) {
   return href === "/" ? pathname === "/" : pathname.startsWith(href);

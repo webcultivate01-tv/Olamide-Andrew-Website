@@ -74,7 +74,7 @@ export default function MyServices() {
               {/* Both columns are capped rather than fluid, so the pair is
                   centred in the section instead of hugging the left edge on
                   wide screens. */}
-              <div className="grid gap-6 lg:h-full lg:content-center lg:gap-8 lg:grid-cols-[minmax(0,440px)_minmax(0,520px)] lg:justify-center lg:gap-x-14 xl:grid-cols-[minmax(0,490px)_minmax(0,560px)] xl:gap-x-20">
+              <div className="grid gap-6 lg:h-full lg:content-center lg:gap-8 lg:grid-cols-[minmax(0,360px)_minmax(0,520px)] lg:justify-center lg:gap-x-14 xl:grid-cols-[minmax(0,400px)_minmax(0,560px)] xl:gap-x-20">
                 {/* The notched top-right corner and the rounding are baked into
                     the PNG's alpha, so nothing is clipped or tinted here — a
                     background would show through the transparent corner. */}
@@ -83,7 +83,7 @@ export default function MyServices() {
                     src={service.src}
                     alt={service.alt}
                     fill
-                    sizes="(min-width: 1280px) 490px, (min-width: 1024px) 440px, 100vw"
+                    sizes="(min-width: 1280px) 400px, (min-width: 1024px) 360px, 100vw"
                     className="object-cover"
                   />
                 </div>
@@ -111,12 +111,7 @@ export default function MyServices() {
                     ))}
                   </div>
 
-                  {/* One tinted panel behind both the heading and the copy,
-                      hugging their line boxes with no padding of its own. Only
-                      from lg,
-                      where the copy sits beside the image — stacked, the tint
-                      would read as a stray grey block under each photo. */}
-                  <div className="lg:mt-9 lg:bg-footer">
+                  <div className="lg:mt-9">
                     <h3 className="font-headline text-[1.75rem] leading-[1.15] tracking-[-0.01em] text-foreground md:text-[2.25rem] lg:text-[3rem]">
                       {service.title}
                     </h3>

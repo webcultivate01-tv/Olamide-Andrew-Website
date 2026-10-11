@@ -13,12 +13,12 @@ const BURST_POINTS = Array.from({ length: 32 }, (_, i) => {
 }).join(" ");
 
 const HEADLINE =
-  "font-headline text-[3rem] leading-[48px] tracking-[-0.01em] text-foreground uppercase sm:text-[2.75rem] sm:leading-[96px] md:text-[3.5rem] lg:text-[4.25rem]";
+  "font-headline text-[2.25rem] leading-[1.25] tracking-[-0.01em] text-foreground uppercase sm:text-[2.75rem] sm:leading-[96px] md:text-[3.5rem] lg:text-[4.25rem]";
 
 // The narrow measure is doing layout work: it holds each sub-line to the
 // two-line break the design calls for.
 const SUBLINE =
-  "mx-auto mt-6 max-w-[360px] text-lg leading-[24px] md:leading-relaxed text-black/65 md:mt-10 md:text-xl";
+  "mx-auto mt-6 max-w-[360px] text-base leading-relaxed md:text-xl text-black/65 md:mt-10";
 
 function Burst() {
   return (
@@ -56,7 +56,7 @@ export default function BrandMessage() {
         Your brand shapes perception before you ever have the chance to.
       </Reveal>
 
-      <div className="mt-28 md:mt-48">
+      <div className="mt-20 md:mt-48">
         <Reveal variant="mask">
           <h2
             className={`mx-auto max-w-[820px] lg:flex lg:h-[163px] lg:w-[860px] lg:max-w-none lg:items-center lg:justify-center lg:leading-[96px] ${HEADLINE}`}
@@ -76,14 +76,14 @@ export default function BrandMessage() {
           as="p"
           variant="roll"
           delay={320}
-          className="font-headline relative mx-auto mt-[48px] inline-block text-[3rem] leading-[1.1] tracking-[0.12em] text-outline-navy uppercase sm:mt-[3.25rem] sm:text-[2.25rem] md:mt-[2.5rem] md:text-[3rem] lg:mt-[1.75rem] lg:text-[3.75rem] lg:leading-[110px]"
+          className="font-headline relative mx-auto mt-6 inline-block text-[2.25rem] leading-[1.2] tracking-[0.12em] text-outline-navy uppercase sm:mt-[3.25rem] sm:text-[2.25rem] md:mt-[2.5rem] md:text-[3rem] lg:mt-[1.75rem] lg:text-[3.75rem] lg:leading-[110px]"
         >
           Strategy does!
           <Burst />
         </Reveal>
       </div>
 
-      <div className="mt-28 md:mt-48">
+      <div className="mt-20 md:mt-48">
         <Reveal variant="mask">
           <h2 className={`mx-auto max-w-[760px] ${HEADLINE}`}>
             Your brand should
@@ -95,7 +95,7 @@ export default function BrandMessage() {
           as="p"
           variant="up"
           delay={120}
-          className={SUBLINE.replace("leading-relaxed", "leading-[40px]")}
+          className={SUBLINE.replace("md:mt-10", "md:mt-10 md:leading-[40px]")}
         >
           Build trust before the first conversation begins.
         </Reveal>

@@ -87,7 +87,7 @@ export default function InsightsGrid({ posts = [], categories = [] }) {
       <div className="mx-auto max-w-[1600px] px-5 py-16 md:px-10 md:py-20 lg:px-20 lg:py-24">
         <Reveal
           as="div"
-          className="flex flex-wrap items-center gap-3"
+          className="no-scrollbar -mx-5 flex items-center gap-2 overflow-x-auto px-5 whitespace-nowrap sm:mx-0 sm:flex-wrap sm:gap-3 sm:overflow-visible sm:px-0"
           aria-label="Filter by category"
         >
           <button

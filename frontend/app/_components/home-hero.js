@@ -5,9 +5,9 @@ import Reveal from "../components/reveal";
 // The rail deliberately runs past the right edge of the page — the third tile
 // is meant to be cut off, signalling there is more to scroll to.
 const WORK = [
-  { src: "/case-studies/hero1.png", alt: "Grocery retail brand rollout" },
-  { src: "/case-studies/Skyline.png", alt: "ACG identity applied to haulage livery" },
-  { src: "/case-studies/Patches.png", alt: "Embroidered brand merchandise" },
+  { src: "/case-studies/hero1.png", alt: "Grocery retail brand rollout", title: "Grocery Retail Rollout" },
+  { src: "/case-studies/Skyline.png", alt: "ACG identity applied to haulage livery", title: "Skyline Finance" },
+  { src: "/case-studies/Patches.png", alt: "Embroidered brand merchandise", title: "Patches" },
 ];
 
 export default function HomeHero() {
@@ -65,21 +65,24 @@ export default function HomeHero() {
                 key={item.src}
                 variant="wipe"
                 delay={index * 100}
-                className="w-[calc(100vw-2.5rem)] shrink-0 snap-start sm:w-[380px] lg:w-[588px]"
+                className="w-[calc(100vw-2.5rem)] shrink-0 snap-start sm:w-[380px] lg:w-[400px] xl:w-[440px]"
               >
-                {/* The inner div is the clipped frame the image eases out of
-                    its zoom behind — see the wipe rules in globals.css for why
-                    it can't be the Reveal wrapper itself. */}
-                <div className="relative aspect-[588/570] w-full overflow-hidden rounded-lg bg-black/[.06]">
-                  <Image
-                    src={item.src}
-                    alt={item.alt}
-                    fill
-                    priority
-                    sizes="(min-width: 1024px) 588px, (min-width: 640px) 380px, 100vw"
-                    className="object-cover"
-                  />
-                </div>
+                {/* Same card as the case-studies grid: 580x516 frame, notched
+                    corner, rounded, title underneath. */}
+                <Link href="/case-studies" className="group block">
+                  <div className="clip-notch overflow-hidden rounded-[20px]">
+                    <div className="relative aspect-[580/516] w-full bg-black/[.06]">
+                      <Image
+                        src={item.src}
+                        alt={item.alt}
+                        fill
+                        priority
+                        sizes="(min-width: 1280px) 440px, (min-width: 1024px) 400px, (min-width: 640px) 380px, 100vw"
+                        className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                      />
+                    </div>
+                  </div>
+                </Link>
               </Reveal>
             ))}
           </div>

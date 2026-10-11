@@ -50,7 +50,7 @@ export default function AboutHero() {
               href="/case-studies"
               className="font-nav inline-block bg-accent px-4 py-3.5 text-center text-base font-bold tracking-[0.02em] text-black uppercase transition-[transform,background-color] duration-300 hover:-translate-y-0.5 hover:bg-accent-hover sm:px-7 lg:text-lg"
             >
-              View my works
+              View case studies
             </Link>
             <Link
               href="/contact"

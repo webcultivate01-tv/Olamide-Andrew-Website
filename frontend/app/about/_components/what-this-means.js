@@ -34,7 +34,7 @@ export default function WhatThisMeans() {
           href="/contact"
           className="font-nav inline-block bg-accent px-7 py-3.5 text-base font-bold tracking-[0.02em] text-black uppercase transition-[transform,background-color] duration-300 hover:-translate-y-0.5 hover:bg-accent-hover lg:text-lg"
         >
-          Book a free brand clarity audit
+          Free Brand Audit
         </Link>
       </Reveal>
     </section>

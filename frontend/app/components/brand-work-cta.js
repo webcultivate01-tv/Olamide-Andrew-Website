@@ -27,7 +27,7 @@ export default function BrandWorkCta() {
           Below md the spans collapse to display:contents so the words flow
           and wrap naturally at the smaller size instead of forcing those
           same three breaks into a narrow column. */}
-      <h2 className="font-headline relative text-[3rem] leading-[52px] tracking-[-0.01em] text-foreground uppercase sm:text-[3.25rem] md:text-[4.5rem] lg:text-[5.5rem] lg:leading-[120px] xl:text-[6rem]">
+      <h2 className="font-headline relative text-[2.25rem] leading-[1.25] tracking-[-0.01em] text-foreground uppercase sm:text-[3.25rem] sm:leading-[52px] md:text-[4.5rem] lg:text-[5.5rem] lg:leading-[120px] xl:text-[6rem]">
         <Reveal
           as="span"
           variant="wide-left"
@@ -70,15 +70,15 @@ export default function BrandWorkCta() {
       <Reveal as="div" variant="roll" delay={400} className="relative">
         <Link
           href="/contact"
-          className="font-nav mt-16 inline-block bg-accent px-7 py-2.5 text-base font-bold tracking-[0.02em] text-black uppercase transition-all duration-300 hover:-translate-y-0.5 hover:bg-accent-hover hover:shadow-[0_10px_30px_-8px_rgba(0,0,0,0.35)] md:mt-20 lg:text-lg"
+          className="font-nav mt-10 inline-block bg-accent px-7 py-2.5 text-base font-bold tracking-[0.02em] text-black uppercase transition-all duration-300 hover:-translate-y-0.5 hover:bg-accent-hover hover:shadow-[0_10px_30px_-8px_rgba(0,0,0,0.35)] md:mt-20 lg:text-lg"
         >
-          Book a free brand clarity audit
+          Free Brand Audit
         </Link>
       </Reveal>
 
       <nav
         aria-label="Social"
-        className="relative mt-16 flex flex-wrap items-center justify-center gap-x-6 gap-y-4 md:mt-20"
+        className="relative mt-12 flex flex-wrap items-center justify-center gap-x-6 gap-y-4 md:mt-20"
       >
         {SOCIAL_LINKS.map((link, index) => (
           <Reveal

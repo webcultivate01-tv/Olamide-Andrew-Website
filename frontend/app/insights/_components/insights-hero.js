@@ -42,7 +42,7 @@ export default function InsightsHero() {
           {/* Lines fly in from opposite edges and converge, same as the
               home hero, but left as inline spans so they sit on one line
               once there's room instead of always forcing a hard break. */}
-          <h1 className="font-headline mt-4 text-[2.25rem] leading-[1.1] tracking-[-0.01em] text-foreground uppercase sm:text-[3.5rem] md:text-[4.25rem] lg:text-[5rem]">
+          <h1 className="font-headline mt-4 text-[clamp(1.5rem,8vw,2.25rem)] leading-[1.2] tracking-[-0.01em] whitespace-nowrap text-foreground uppercase sm:text-[3.5rem] sm:leading-[1.1] sm:whitespace-normal md:text-[4.25rem] lg:text-[5rem]">
             <Reveal as="span" variant="wide-left" className="inline-block">
               Ideas worth
             </Reveal>{" "}

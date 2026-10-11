@@ -49,6 +49,7 @@ export default function CaseStudyGrid({ studies = [] }) {
         <RevealWords
           as="h2"
           text="Every concept starts with a business problem, not a design brief."
+          accent="business problem,"
           step={55}
           className="font-headline mx-auto max-w-[960px] text-center text-[2.25rem] leading-[48px] tracking-[-0.01em] text-foreground uppercase sm:text-[3.25rem] sm:leading-[96px] md:text-[3.75rem] lg:text-[4.75rem] xl:text-[5.125rem]"
         />
@@ -64,7 +65,7 @@ export default function CaseStudyGrid({ studies = [] }) {
           strategic thinking shapes an effective brand.
         </Reveal>
 
-        <div className="mt-12 grid gap-x-5 gap-y-11 sm:grid-cols-2 md:mt-16 lg:mt-20">
+        <div className="mx-auto mt-12 grid max-w-[1240px] gap-x-5 gap-y-11 sm:grid-cols-2 md:mt-16 lg:mt-20">
           {(visible.length ? visible : STATIC_STUDIES).map((study, index) => (
             // The whole card rolls up into place (3D tip on its own bottom
             // edge) before the image's own wipe plays inside it — the two
@@ -79,13 +80,14 @@ export default function CaseStudyGrid({ studies = [] }) {
                     and they sit outside the Reveal on purpose: the wipe animates
                     clip-path on its own child, which would overwrite the notch.
                     See the wipe rules in globals.css. */}
-                <div className="clip-notch overflow-hidden rounded-[20px]">
+                <div className="clip-notch overflow-hidden rounded-[16px]">
                   <Reveal variant="wipe" delay={index % 2 ? 140 : 0}>
                     {/* The inner div is the clipped frame the image eases out of
                         its zoom behind — it can't be the Reveal wrapper itself. */}
                     <div>
-                      {/* 580×516 — fixed card size per design spec. */}
-                      <div className="relative aspect-[580/516] w-full">
+                      {/* 580×360 — same card size as the "Other Case Studies"
+                          slider on the detail pages. */}
+                      <div className="relative aspect-[580/360] w-full">
                         {/* mediaUrl resolves the stored path: an upload lives on
                             the API's origin, an original launch image in this
                             site's own public folder. */}
@@ -93,7 +95,7 @@ export default function CaseStudyGrid({ studies = [] }) {
                           src={study.src ?? mediaUrl(study.imageUrl)}
                           alt={study.imageAlt || study.title || ""}
                           fill
-                          sizes="(min-width: 1600px) 710px, (min-width: 640px) 50vw, 100vw"
+                          sizes="(min-width: 1600px) 620px, (min-width: 640px) 50vw, 100vw"
                           className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                         />
 

@@ -14,6 +14,7 @@ export default function RevealWords({
   className = "",
   delay = 0,
   step = 45,
+  accent = "",
   ...rest
 }) {
   const ref = useRef(null);
@@ -28,11 +29,23 @@ export default function RevealWords({
 
   const words = text.split(" ");
 
+  // `accent` is a phrase inside `text` to tint with the accent colour. Work
+  // out which word indexes it covers so the per-word spans can carry it.
+  const accentStart = accent ? text.indexOf(accent) : -1;
+  const accented = new Set();
+  if (accentStart >= 0) {
+    const first = text.slice(0, accentStart).split(" ").length - 1;
+    accent.split(" ").forEach((_, i) => accented.add(first + i));
+  }
+
   return (
     <Tag ref={ref} className={className} {...rest}>
       {words.map((word, index) => (
         <span key={index} data-reveal-word data-shown={shown ? "" : undefined}>
-          <span style={{ "--word-delay": `${delay + index * step}ms` }}>
+          <span
+            className={accented.has(index) ? "text-accent" : undefined}
+            style={{ "--word-delay": `${delay + index * step}ms` }}
+          >
             {word}
           </span>
           {index < words.length - 1 ? " " : ""}
