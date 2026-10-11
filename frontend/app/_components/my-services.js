@@ -59,7 +59,7 @@ export default function MyServices() {
           service has nowhere to pin and the pinned ones behind it reappear.
           Neither the runway nor the gaps between stacked cards apply at the
           other breakpoint, hence the pair of one-sided spacing rules. */}
-      <div className="relative mt-9 flex flex-col gap-12 md:mt-16 lg:block">
+      <div className="relative mt-9 flex flex-col gap-16 md:mt-16 md:gap-20 lg:block">
         {SERVICES.map((service, index) => (
           <Fragment key={service.title}>
             <div
@@ -70,7 +70,13 @@ export default function MyServices() {
               className="hidden scroll-mt-28 lg:block"
             />
 
-            <Reveal as="article" variant="up" delay={index * 80} className={PANEL}>
+            <Reveal
+              as="article"
+              variant="up"
+              mobile={index % 2 === 0 ? "right" : "left"}
+              delay={index * 80}
+              className={PANEL}
+            >
               {/* Both columns are capped rather than fluid, so the pair is
                   centred in the section instead of hugging the left edge on
                   wide screens. */}

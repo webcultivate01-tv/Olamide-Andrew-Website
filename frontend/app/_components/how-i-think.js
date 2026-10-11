@@ -59,6 +59,7 @@ export default function HowIThink() {
           <Reveal
             key={item.title}
             variant="up"
+            mobile={index % 2 === 0 ? "left" : "right"}
             delay={index * 100}
             className="clip-notch bg-black/15 p-px"
           >

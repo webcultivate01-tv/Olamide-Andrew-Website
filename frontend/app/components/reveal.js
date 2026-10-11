@@ -26,6 +26,9 @@ import { watchReveal } from "./reveal-observer";
 //           display type; the child must be one element.
 //   wipe  — a top-to-bottom clip reveal with the child easing out of a
 //           slight zoom. Built for images.
+//   mobile — optional "left" | "right". Phones otherwise show every reveal
+//           statically (see globals.css); this opts one element into a
+//           slide-in from that side below md. No effect from md up.
 //   roll  — a 3D tip-up on the element's own bottom edge (rotateX +
 //           translate), for a modern "rolling" entrance on cards/blocks.
 
@@ -33,6 +36,7 @@ export default function Reveal({
   as: Tag = "div",
   variant = "up",
   delay = 0,
+  mobile,
   className = "",
   children,
   ...rest
@@ -51,6 +55,7 @@ export default function Reveal({
     <Tag
       ref={ref}
       data-reveal={variant}
+      data-reveal-m={mobile}
       data-shown={shown ? "" : undefined}
       style={delay ? { "--reveal-delay": `${delay}ms` } : undefined}
       className={className}

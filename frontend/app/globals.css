@@ -371,6 +371,62 @@
   }
 }
 
+/* Opt-in phone-only slide-ins (Reveal's `mobile` prop). Declared after the
+   blanket reset above and with higher specificity, so these elements still
+   animate on scroll below md while every other reveal stays static. From md
+   up the attribute does nothing and the element's normal variant applies. */
+@keyframes mobile-slide-from-left {
+  from {
+    opacity: 0;
+    transform: translate3d(-64px, 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes mobile-slide-from-right {
+  from {
+    opacity: 0;
+    transform: translate3d(64px, 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (max-width: 767px) and (prefers-reduced-motion: no-preference) {
+  [data-reveal][data-reveal-m="left"] {
+    opacity: 0;
+    transform: translate3d(-64px, 0, 0);
+  }
+
+  [data-reveal][data-reveal-m="right"] {
+    opacity: 0;
+    transform: translate3d(64px, 0, 0);
+  }
+
+  [data-reveal][data-reveal-m="left"][data-shown] {
+    animation: mobile-slide-from-left 0.9s var(--reveal-ease) both;
+  }
+
+  [data-reveal][data-reveal-m="right"][data-shown] {
+    animation: mobile-slide-from-right 0.9s var(--reveal-ease) both;
+  }
+}
+
+/* Reveal variants park elements off to the side before they animate in
+   ("right", "wide-right", the full-bleed w-screen blocks), which would
+   otherwise widen the page and give mobile a horizontal scroll. clip (not
+   hidden) keeps position: sticky working because it makes no scroll container. */
+html,
+body {
+  max-width: 100%;
+  overflow-x: clip;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
