@@ -4,7 +4,6 @@ import Image from "next/image";
 import { useEffect, useRef } from "react";
 import { clamp01, watchScroll } from "@/app/components/scroll-progress";
 import Reveal from "../../components/reveal";
-import { FULL_FRAME } from "./case-study-layout";
 
 /**
  * The case study's cover image, pinned to the top of the screen so the rest
@@ -45,7 +44,7 @@ export default function CaseStudyHero({ src, alt }) {
     <>
       <div
         ref={heroRef}
-        className={`sticky top-0 z-0 hidden overflow-hidden md:block ${FULL_FRAME}`}
+        className="sticky top-0 z-0 hidden h-[min(40vw,75svh)] w-full overflow-hidden md:block"
       >
         {/* The drift gets a layer of its own above the reveal rather than
             sharing one with it: the wipe's settle animation owns the

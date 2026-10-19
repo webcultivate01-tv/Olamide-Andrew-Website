@@ -13,8 +13,8 @@ export default function AboutHero() {
           {/* Anton's caps fill ~0.71em of the line box, so 1.08 leading keeps a
               clear band of white between the two wrapped lines. */}
           <Reveal variant="mask">
-            <h1 className="font-headline text-[2.25rem] leading-[1.08] tracking-[-0.01em] text-foreground uppercase sm:text-[2.75rem] lg:text-[3.25rem]">
-              Hi, I&apos;m Ọlámidé (or Lah Meday).
+            <h1 className="font-headline text-[2.25rem] leading-[1.25] tracking-[-0.01em] text-foreground uppercase sm:text-[2.75rem] sm:leading-[1.08] lg:text-[3.25rem]">
+              Hi, I&apos;m Ọlámidé (Lah Meday).
             </h1>
           </Reveal>
 
@@ -25,18 +25,18 @@ export default function AboutHero() {
             delay={180}
             className="mt-6 max-w-[520px] text-base leading-relaxed text-black/75 md:text-lg"
           >
-            I am a Strategic Brand Designer who believes design should do more
-            than look good. It should communicate clearly, build trust, and
-            support business growth.
+            I&apos;m a Strategic Brand Designer who helps businesses
+            communicate their value clearly. I bring together business
+            thinking, brand strategy and visual design to help businesses show
+            what makes them valuable and what sets them apart.
           </Reveal>
 
           <Reveal
             as="p"
             delay={280}
-            className="mt-6 max-w-[520px] text-base leading-relaxed text-black/75 md:text-lg"
+            className="mt-6 max-w-[520px] text-xs tracking-[0.04em] text-black/70 uppercase md:text-sm"
           >
-            I help founders and growing businesses build brands with intention
-            from strategy and positioning to visual identity and execution.
+            BSc in Economics · Diploma in Graphic Design · RGD Associate Member
           </Reveal>
 
           {/* Two even columns on mobile: at 402px the pair is a few pixels too
@@ -44,19 +44,19 @@ export default function AboutHero() {
               onto separate lines. */}
           <Reveal
             delay={380}
-            className="mt-9 grid grid-cols-2 gap-4 sm:flex sm:flex-wrap sm:items-center"
+            className="mt-9 flex flex-nowrap items-center gap-2 sm:gap-4"
           >
             <Link
-              href="/case-studies"
-              className="font-nav inline-block bg-accent px-4 py-3.5 text-center text-base font-bold tracking-[0.02em] text-black uppercase transition-[transform,background-color] duration-300 hover:-translate-y-0.5 hover:bg-accent-hover sm:px-7 lg:text-lg"
+              href="/contact"
+              className="font-nav inline-block bg-accent px-3 py-3.5 text-center text-[clamp(0.6875rem,1.1vw,1.125rem)] font-bold tracking-[0.02em] whitespace-nowrap text-black uppercase transition-[transform,background-color] duration-300 hover:-translate-y-0.5 hover:bg-accent-hover sm:px-5 xl:px-7"
             >
-              View case studies
+              Book a Free Brand Clarity Audit
             </Link>
             <Link
-              href="/contact"
-              className="font-nav inline-block border border-foreground px-4 py-3.5 text-center text-base font-bold tracking-[0.02em] text-foreground uppercase transition-[transform,background-color,color] duration-300 hover:-translate-y-0.5 hover:bg-foreground hover:text-white sm:px-7 lg:text-lg"
+              href="/case-studies"
+              className="font-nav inline-block border border-foreground px-3 py-3.5 text-center text-[clamp(0.6875rem,1.1vw,1.125rem)] font-bold tracking-[0.02em] whitespace-nowrap text-foreground uppercase transition-[transform,background-color,color] duration-300 hover:-translate-y-0.5 hover:bg-foreground hover:text-white sm:px-5 xl:px-7"
             >
-              Start a project
+              View my concept work →
             </Link>
           </Reveal>
         </div>

@@ -2,13 +2,14 @@ import AboutHero from "./_components/about-hero";
 import MyStory from "./_components/my-story";
 import WhatIBelieve from "./_components/what-i-believe";
 import HowIWork from "./_components/how-i-work";
-import WhatThisMeans from "./_components/what-this-means";
+import WhoIWorkWith from "./_components/who-i-work-with";
+import BeyondDesign from "./_components/beyond-design";
 import StartProjectCta from "./_components/start-project-cta";
 
 export const metadata = {
   title: "About — Olamide",
   description:
-    "Ọlámidé is a Strategic Brand Designer helping founders and growing businesses build brands with clarity, trust and direction.",
+    "Ọlámidé (Lah Meday) is a Strategic Brand Designer who helps businesses communicate their value clearly through brand strategy and visual design.",
 };
 
 export default function AboutPage() {
@@ -18,7 +19,8 @@ export default function AboutPage() {
       <MyStory />
       <WhatIBelieve />
       <HowIWork />
-      <WhatThisMeans />
+      <WhoIWorkWith />
+      <BeyondDesign />
       <StartProjectCta />
     </>
   );

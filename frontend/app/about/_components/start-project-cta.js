@@ -9,32 +9,33 @@ export default function StartProjectCta() {
             frame arrives first so the copy has somewhere to land. */}
         <Reveal className="flex flex-col gap-8 rounded-[20px] border border-black/10 px-6 py-10 md:px-10 md:py-14 lg:flex-row lg:items-center lg:justify-between lg:gap-12">
           <div>
-            <Reveal
-              as="p"
-              delay={220}
-              className="text-xs tracking-[0.04em] text-black/70 uppercase md:text-sm"
-            >
-              Ready to build something real?
-            </Reveal>
-
             {/* 1.12 leading leaves a clear band of white between the two
                 wrapped lines of Anton caps. */}
-            <Reveal variant="mask" delay={300} className="mt-4">
-              <h2 className="font-headline max-w-[900px] text-[2rem] leading-[1.12] tracking-[-0.01em] text-foreground uppercase sm:text-[2.5rem] lg:text-[3rem]">
-                Lets turn your ideas into{" "}
-                <span className="text-accent">
-                  thoughtful brands with a clear direction.
-                </span>
+            <Reveal variant="mask" delay={220}>
+              <h2 className="font-headline max-w-[900px] text-[2rem] leading-[1.25] tracking-[-0.01em] text-foreground uppercase sm:text-[2.5rem] sm:leading-[1.12] lg:text-[3rem]">
+                Let&apos;s make your brand{" "}
+                <span className="text-accent">work as hard as you do.</span>
               </h2>
+            </Reveal>
+
+            <Reveal
+              as="p"
+              delay={380}
+              className="mt-5 max-w-[760px] text-base leading-relaxed text-black/75 md:text-lg"
+            >
+              Your business has a story and value to offer. The question is
+              whether your brand is communicating them clearly. If you’d like
+              to look at how your business is positioned, presented and
+              perceived, let’s start with a conversation.
             </Reveal>
           </div>
 
-          <Reveal delay={420} className="shrink-0 self-start lg:self-auto">
+          <Reveal delay={460} className="shrink-0 self-start lg:self-auto">
             <Link
               href="/contact"
               className="font-nav inline-block bg-accent px-7 py-3.5 text-base font-bold tracking-[0.02em] text-black uppercase transition-[transform,background-color] duration-300 hover:-translate-y-0.5 hover:bg-accent-hover lg:text-lg"
             >
-              Free Brand Audit
+              Book a Free Brand Clarity Audit
             </Link>
           </Reveal>
         </Reveal>

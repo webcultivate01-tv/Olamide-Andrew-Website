@@ -2,72 +2,62 @@ import Reveal from "../../components/reveal";
 import SectionHeading from "./section-heading";
 
 const INTRO = [
-  "Every project begins with questions before visuals.",
-  "Before colours.",
-  "Before typography.",
-  "Before logos.",
-  "I want to understand:",
+  "I start by asking questions. Who are you trying to reach? What makes your business valuable? What sets you apart? I don’t believe every business needs a new logo. Sometimes the real problem is unclear messaging, or a business that has outgrown its positioning.",
+  "From there, I bring research, strategy and creative work together:",
 ];
 
-const QUESTIONS = [
-  "What makes your business different?",
-  "Who are you trying to reach?",
-  "Why should people choose you?",
-  "How do you want to be remembered?",
-  "What business goals should your brand support?",
+const PILLARS = [
+  {
+    title: "Brand Strategy",
+    text: "Understand the business, its audience and what it needs to say.",
+  },
+  {
+    title: "Visual Identity",
+    text: "Turn that direction into a distinctive, consistent visual system.",
+  },
+  {
+    title: "Brand Activation",
+    text: "Apply the brand across touchpoints so its message stays consistent.",
+  },
 ];
-
-const OUTRO = [
-  "Only after those answers become clear does design begin.",
-  "Because great brands are not designed first.",
-  "They are understood first.",
-];
-
-const LINE = "text-base leading-relaxed text-black/75 md:text-lg";
 
 export default function HowIWork() {
   return (
     <section className="mx-auto max-w-[1600px] px-5 py-16 md:px-10 md:py-20 lg:px-20 lg:py-24">
       <SectionHeading>
-        How I <span className="text-accent">Work</span>
+        Understand first. <span className="text-accent">Design with purpose.</span>
       </SectionHeading>
 
-      <div className="mt-6 max-w-[1180px] space-y-2 md:mt-8">
-        {INTRO.map((line, i) => (
-          <Reveal as="p" key={line} delay={120 + i * 70} className={LINE}>
-            {line}
+      <div className="mt-6 max-w-[1180px] space-y-6 md:mt-8">
+        {INTRO.map((text, i) => (
+          <Reveal
+            as="p"
+            key={text.slice(0, 40)}
+            delay={120 + i * 120}
+            className="text-base leading-relaxed text-black/75 md:text-lg"
+          >
+            {text}
           </Reveal>
         ))}
       </div>
 
-      {/* The questions come in from the left instead of straight up, so the
-          list separates itself from the prose bracketing it. */}
-      <ul className="mt-2 max-w-[1180px] space-y-2">
-        {QUESTIONS.map((question, i) => (
+      <ul className="mt-10 grid gap-5 md:mt-12 md:grid-cols-3">
+        {PILLARS.map((pillar, i) => (
           <Reveal
             as="li"
-            key={question}
-            variant="left"
-            delay={i * 90}
-            className={`flex gap-4 ${LINE}`}
+            key={pillar.title}
+            delay={i * 120}
+            className="rounded-[20px] border border-black/10 px-6 py-8 md:px-7 md:py-10"
           >
-            {/* Solid dot marker, nudged down so it sits on the text's midline. */}
-            <span
-              aria-hidden="true"
-              className="mt-[0.6em] h-2 w-2 shrink-0 rounded-full bg-foreground"
-            />
-            <span>{question}</span>
+            <h3 className="font-headline text-[1.75rem] leading-[1.1] tracking-[-0.01em] text-foreground uppercase md:text-[2rem]">
+              {pillar.title}
+            </h3>
+            <p className="mt-4 text-base leading-relaxed text-black/75 md:text-lg">
+              {pillar.text}
+            </p>
           </Reveal>
         ))}
       </ul>
-
-      <div className="mt-2 max-w-[1180px] space-y-2">
-        {OUTRO.map((line, i) => (
-          <Reveal as="p" key={line} delay={i * 90} className={LINE}>
-            {line}
-          </Reveal>
-        ))}
-      </div>
     </section>
   );
 }

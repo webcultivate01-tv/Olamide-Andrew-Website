@@ -46,7 +46,7 @@ export default function SiteFooter() {
           <p className="order-3 w-full text-center sm:order-none sm:w-auto">
             Developed and managed by{" "}
             <a
-              href="https://www.linkedin.com/in/tejasmehar/"
+              href="https://tejasmehar.in"
               target="_blank"
               rel="noopener noreferrer"
               className="transition-opacity hover:opacity-60"

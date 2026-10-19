@@ -10,7 +10,7 @@ export default function SectionHeading({ children, className = "" }) {
   return (
     <Reveal variant="mask">
       <h2
-        className={`font-headline text-[2.25rem] leading-[1.05] tracking-[-0.01em] text-foreground uppercase sm:text-5xl md:text-[3.5rem] lg:text-[4rem] ${className}`}
+        className={`font-headline text-[2.25rem] leading-[1.25] tracking-[-0.01em] text-foreground uppercase sm:text-5xl sm:leading-[1.05] md:text-[3.5rem] lg:text-[4rem] ${className}`}
       >
         {children}
       </h2>
