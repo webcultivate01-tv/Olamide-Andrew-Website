@@ -1,0 +1,11 @@
+# Rules for search engine crawlers (Google, Bing, etc.)
+
+User-agent: *
+Allow: /
+
+# Private pages - not meant to appear in search results
+Disallow: /admin
+Disallow: /zz-preview
+
+# The list of every page we want Google to find
+Sitemap: https://olamideandrew.com/sitemap.xml

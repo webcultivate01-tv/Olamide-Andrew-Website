@@ -1,5 +1,7 @@
 import { notFound } from "next/navigation";
 import { publicFetch, publicFetchResult } from "@/lib/server-api";
+import { mediaUrl } from "@/lib/api";
+import { pageMetadata } from "@/lib/site";
 import CaseStudyDetail from "../_components/case-study-detail";
 
 // Every other study to point to at the foot of the page, in the portfolio's
@@ -25,13 +27,24 @@ export async function generateMetadata({ params }) {
   const study = data?.caseStudy;
 
   if (!study) {
-    return { title: "Case Study — Olamide" };
+    return { title: "Case Study | Olamide Andrew" };
   }
 
-  return {
-    title: `${study.title} — Olamide`,
+  const image = mediaUrl(study.imageUrl);
+
+  return pageMetadata({
+    title: `${study.title} — Brand Case Study | Olamide Andrew`,
     description: study.summary,
-  };
+    path: `/case-studies/${encodeURIComponent(study.slug)}`,
+    type: "article",
+    image: image
+      ? { url: image, alt: study.imageAlt || study.title }
+      : undefined,
+    extra: {
+      publishedTime: study.publishedAt ?? undefined,
+      modifiedTime: study.updatedAt ?? undefined,
+    },
+  });
 }
 
 export default async function CaseStudyDetailPage({ params }) {

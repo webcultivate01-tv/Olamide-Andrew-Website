@@ -1,5 +1,7 @@
 import { notFound } from "next/navigation";
 import { publicFetch, publicFetchResult } from "@/lib/server-api";
+import { mediaUrl } from "@/lib/api";
+import { pageMetadata, absoluteUrl, SITE_URL, SITE_NAME } from "@/lib/site";
 import BlogPostDetail from "../_components/blog-post-detail";
 
 // The stories to point to at the foot of the page: the newest few that are
@@ -17,13 +19,26 @@ export async function generateMetadata({ params }) {
   const post = data?.post;
 
   if (!post) {
-    return { title: "Blog — Olamide" };
+    return { title: "Blog | Olamide Andrew" };
   }
 
-  return {
-    title: `${post.title} — Olamide`,
+  const image = mediaUrl(post.coverImageUrl);
+
+  return pageMetadata({
+    title: `${post.title} | Olamide Andrew`,
     description: post.excerpt,
-  };
+    path: `/blog/${encodeURIComponent(post.slug)}`,
+    type: "article",
+    image: image
+      ? { url: image, alt: post.coverImageAlt || post.title }
+      : undefined,
+    extra: {
+      publishedTime: post.publishedAt ?? undefined,
+      modifiedTime: post.updatedAt ?? undefined,
+      authors: post.author ? [post.author] : undefined,
+      tags: post.tags?.length ? post.tags : undefined,
+    },
+  });
 }
 
 export default async function BlogPostPage({ params }) {
@@ -51,11 +66,40 @@ export default async function BlogPostPage({ params }) {
     notFound();
   }
 
+  const post = detail.data.post;
+  const image = mediaUrl(post.coverImageUrl);
+
+  // Structured data: lets Google show the post as an article, with its date
+  // and author, in search results.
+  const articleData = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: post.title,
+    description: post.excerpt,
+    url: absoluteUrl(`/blog/${encodeURIComponent(post.slug)}`),
+    mainEntityOfPage: absoluteUrl(`/blog/${encodeURIComponent(post.slug)}`),
+    datePublished: post.publishedAt ?? undefined,
+    dateModified: post.updatedAt ?? post.publishedAt ?? undefined,
+    image: image ? [image] : undefined,
+    keywords: post.tags?.length ? post.tags.join(", ") : undefined,
+    author: { "@type": "Person", name: post.author || "Olamide Andrew" },
+    publisher: { "@id": `${SITE_URL}/#person` },
+    isPartOf: { "@type": "Blog", name: `${SITE_NAME} — Insights`, url: absoluteUrl("/insights") },
+  };
+
   return (
-    <BlogPostDetail
-      post={detail.data.post}
-      categories={categoryData?.categories ?? []}
-      otherPosts={pickOtherPosts(listData?.posts ?? [], slug)}
-    />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(articleData).replace(/</g, "\\u003c"),
+        }}
+      />
+      <BlogPostDetail
+        post={post}
+        categories={categoryData?.categories ?? []}
+        otherPosts={pickOtherPosts(listData?.posts ?? [], slug)}
+      />
+    </>
   );
 }

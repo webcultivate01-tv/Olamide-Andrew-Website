@@ -1,9 +1,12 @@
+import { pageMetadata } from "@/lib/site";
 import LegalPage from "../components/legal-page";
 
-export const metadata = {
-  title: "Terms & Conditions — Olamide",
-  description: "The terms that apply when you use the Olamide website.",
-};
+export const metadata = pageMetadata({
+  title: "Terms & Conditions | Olamide Andrew",
+  description:
+    "The terms that apply when you use the Olamide Andrew website and contact Olamide about a project.",
+  path: "/terms-and-conditions",
+});
 
 const SECTIONS = [
   {

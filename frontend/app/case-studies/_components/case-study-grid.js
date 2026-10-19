@@ -47,7 +47,7 @@ export default function CaseStudyGrid({ studies = [] }) {
             line reads as the words themselves arriving, not a slab of text
             sliding into place. */}
         <RevealWords
-          as="h2"
+          as="h1"
           text="Every concept starts with a business problem, not a design brief."
           accent="business problem,"
           step={55}

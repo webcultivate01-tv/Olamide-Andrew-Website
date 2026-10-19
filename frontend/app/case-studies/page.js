@@ -1,12 +1,14 @@
+import { pageMetadata } from "@/lib/site";
 import { publicFetch } from "@/lib/server-api";
 import CaseStudyGrid from "./_components/case-study-grid";
 import BrandWorkCta from "../components/brand-work-cta";
 
-export const metadata = {
-  title: "Case Studies — Olamide",
+export const metadata = pageMetadata({
+  title: "Brand Design Case Studies — Strategy, Identity & Activation | Olamide Andrew",
   description:
-    "Every concept starts with a business problem, not a design brief. Selected brand strategy, identity and activation work.",
-};
+    "Every concept starts with a business problem, not a design brief. Explore selected brand strategy, visual identity and brand activation case studies by Olamide Andrew.",
+  path: "/case-studies",
+});
 
 export default async function CaseStudiesPage() {
   // Published studies only — that filter is in the API's query, not here.

@@ -1,9 +1,12 @@
+import { pageMetadata } from "@/lib/site";
 import LegalPage from "../components/legal-page";
 
-export const metadata = {
-  title: "Privacy Policy — Olamide",
-  description: "How Olamide collects, uses and protects your information.",
-};
+export const metadata = pageMetadata({
+  title: "Privacy Policy | Olamide Andrew",
+  description:
+    "How Olamide Andrew collects, uses, stores and protects the personal information you share through this website.",
+  path: "/privacy-policy",
+});
 
 const SECTIONS = [
   {
