@@ -3,7 +3,7 @@ import "./globals.css";
 import SiteHeader from "./components/site-header";
 import SiteFooter from "./components/site-footer";
 import SiteChrome from "./components/site-chrome";
-import { SITE_URL, SITE_NAME, SITE_DESCRIPTION } from "@/lib/site";
+import { SITE_URL, SITE_NAME, SITE_DESCRIPTION, SAME_AS } from "@/lib/site";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -32,7 +32,7 @@ const bodoni = Bodoni_Moda({
 export const metadata = {
   // Makes every relative URL in metadata (canonical, social images) absolute.
   metadataBase: new URL(SITE_URL),
-  title: "Olamide",
+  title: "Olamide Andrew | Strategic Brand Designer",
   description: SITE_DESCRIPTION,
   applicationName: SITE_NAME,
   // "./" resolves to each page's own URL, so every page declares itself as
@@ -92,6 +92,14 @@ const structuredData = {
       jobTitle: "Strategic Brand Designer",
       url: SITE_URL,
       image: `${SITE_URL}/olamide.png`,
+      description: SITE_DESCRIPTION,
+      sameAs: SAME_AS,
+      knowsAbout: [
+        "Brand strategy",
+        "Brand positioning",
+        "Visual identity design",
+        "Brand activation",
+      ],
     },
   ],
 };

@@ -1,12 +1,13 @@
 import Link from "next/link";
 import ArrowUpRight from "./arrow-up-right";
 import Reveal from "./reveal";
+import { LINKEDIN_URL } from "@/lib/site";
 
 const EMAIL = "ishola826@gmail.com";
 
-// TODO: swap the placeholder hrefs for the real profile URLs.
+// TODO: swap the placeholder hrefs for the real Behance and Instagram URLs.
 const SOCIAL_LINKS = [
-  { label: "LinkedIn", href: "#" },
+  { label: "LinkedIn", href: LINKEDIN_URL },
   { label: "Behance", href: "#" },
   { label: "Instagram", href: "#" },
 ];

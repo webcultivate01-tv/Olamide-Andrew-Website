@@ -1,4 +1,5 @@
 import { publicFetch } from "@/lib/server-api";
+import { SITE_URL } from "@/lib/site";
 
 // Generates https://olamideandrew.com/sitemap.xml
 //
@@ -7,7 +8,7 @@ import { publicFetch } from "@/lib/server-api";
 // blog post. The last two are read from the backend, so a new post shows up
 // here automatically with no code change.
 
-const SITE = "https://olamideandrew.com";
+const SITE = SITE_URL;
 
 // Rebuild on every request so new posts appear straight away.
 export const dynamic = "force-dynamic";
@@ -55,8 +56,9 @@ export default async function sitemap() {
       lastModified: study.updatedAt,
     })),
 
-    // One entry per blog post
-    ...blogPosts.map((post) => ({
+    // One entry per blog post, except any hidden from search engines in the
+    // post's SEO settings
+    ...blogPosts.filter((post) => !post.seoNoIndex).map((post) => ({
       url: `${SITE}/blog/${post.slug}`,
       lastModified: post.updatedAt,
     })),

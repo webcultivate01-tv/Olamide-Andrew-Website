@@ -15,6 +15,7 @@ import {
 } from "@/lib/api";
 import { categoryForTags } from "@/app/insights/_components/categories";
 import BlogPostPreview from "./blog-post-preview";
+import { seoChecks } from "./seo-form";
 
 /**
  * One form for both writing and editing a post.
@@ -342,7 +343,6 @@ export default function BlogPostForm({ post = null }) {
     const file = event.target.files?.[0];
     if (file) uploadCover(file);
   };
-
   // `count` is what the "two half images" button uses: a pair is the thing
   // being added, not two blocks that happen to end up adjacent.
   const addBlock = (type, layout = "FULL", count = 1) => {
@@ -487,12 +487,50 @@ export default function BlogPostForm({ post = null }) {
   const previewSrc = mediaUrl(values.coverImageUrl);
   const { words, minutes } = readingStats(values.content);
 
+  // The SEO settings live on their own page (/admin/blog/<id>/seo), so the
+  // button needs a saved post to point at. The badge scores the post's saved
+  // SEO fields against the title and excerpt as they are being edited here.
+  const seo = isEdit ? seoChecks({ ...post, ...values }, post.seoKeywords ?? []) : null;
+  const seoTone = !seo
+    ? ""
+    : seo.passed === seo.checks.length
+      ? "bg-green-600"
+      : seo.passed >= seo.checks.length - 2
+        ? "bg-amber-500"
+        : "bg-red-500";
+
   return (
     <form
       onSubmit={handleSubmit}
       noValidate
       className="grid gap-6 lg:grid-cols-[1.6fr_1fr] lg:items-start"
     >
+      {/* Toolbar ------------------------------------------------------------ */}
+      <div className="flex flex-wrap items-center justify-end gap-3 lg:col-span-2">
+        {isEdit ? (
+          <Link
+            href={`/admin/blog/${post.id}/seo`}
+            className="font-nav inline-flex items-center gap-2.5 border border-black/15 bg-white px-5 py-2.5 text-sm font-bold tracking-[0.04em] text-navy uppercase transition-colors hover:bg-navy hover:text-white"
+          >
+            <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" className="h-4 w-4">
+              <circle cx="8.5" cy="8.5" r="5.5" stroke="currentColor" strokeWidth="2" />
+              <path d="m13 13 4.5 4.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+            SEO
+            <span
+              className={`rounded-full px-2 py-0.5 text-[11px] tracking-normal text-white normal-case ${seoTone}`}
+            >
+              {seo.passed}/{seo.checks.length}
+              <span className="sr-only"> SEO checks passed</span>
+            </span>
+          </Link>
+        ) : (
+          <span className="text-sm text-black/45">
+            SEO settings are available once the post is created.
+          </span>
+        )}
+      </div>
+
       {/* The page itself ---------------------------------------------------- */}
       {/* First, and across the whole width: a new post opens on the shape of
           the page rather than on a column of empty boxes, so the cover image

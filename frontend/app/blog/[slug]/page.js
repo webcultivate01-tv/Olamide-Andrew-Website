@@ -22,11 +22,14 @@ export async function generateMetadata({ params }) {
     return { title: "Blog | Olamide Andrew" };
   }
 
-  const image = mediaUrl(post.coverImageUrl);
+  // The admin's SEO panel wins wherever it was filled in; anything left blank
+  // falls back to the post's own title, excerpt and cover.
+  const image = mediaUrl(post.seoImageUrl || post.coverImageUrl);
+  const keywords = post.seoKeywords?.length ? post.seoKeywords : post.tags;
 
-  return pageMetadata({
-    title: `${post.title} | Olamide Andrew`,
-    description: post.excerpt,
+  const metadata = pageMetadata({
+    title: post.seoTitle || `${post.title} | Olamide Andrew`,
+    description: post.seoDescription || post.excerpt,
     path: `/blog/${encodeURIComponent(post.slug)}`,
     type: "article",
     image: image
@@ -36,9 +39,15 @@ export async function generateMetadata({ params }) {
       publishedTime: post.publishedAt ?? undefined,
       modifiedTime: post.updatedAt ?? undefined,
       authors: post.author ? [post.author] : undefined,
-      tags: post.tags?.length ? post.tags : undefined,
+      tags: keywords?.length ? keywords : undefined,
     },
   });
+
+  return {
+    ...metadata,
+    keywords: keywords?.length ? keywords : undefined,
+    ...(post.seoNoIndex ? { robots: { index: false, follow: true } } : {}),
+  };
 }
 
 export default async function BlogPostPage({ params }) {
@@ -67,7 +76,8 @@ export default async function BlogPostPage({ params }) {
   }
 
   const post = detail.data.post;
-  const image = mediaUrl(post.coverImageUrl);
+  const image = mediaUrl(post.seoImageUrl || post.coverImageUrl);
+  const keywords = post.seoKeywords?.length ? post.seoKeywords : post.tags;
 
   // Structured data: lets Google show the post as an article, with its date
   // and author, in search results.
@@ -75,13 +85,13 @@ export default async function BlogPostPage({ params }) {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
     headline: post.title,
-    description: post.excerpt,
+    description: post.seoDescription || post.excerpt,
     url: absoluteUrl(`/blog/${encodeURIComponent(post.slug)}`),
     mainEntityOfPage: absoluteUrl(`/blog/${encodeURIComponent(post.slug)}`),
     datePublished: post.publishedAt ?? undefined,
     dateModified: post.updatedAt ?? post.publishedAt ?? undefined,
     image: image ? [image] : undefined,
-    keywords: post.tags?.length ? post.tags.join(", ") : undefined,
+    keywords: keywords?.length ? keywords.join(", ") : undefined,
     author: { "@type": "Person", name: post.author || "Olamide Andrew" },
     publisher: { "@id": `${SITE_URL}/#person` },
     isPartOf: { "@type": "Blog", name: `${SITE_NAME} — Insights`, url: absoluteUrl("/insights") },

@@ -69,7 +69,11 @@ export default function HomeHero() {
               >
                 {/* Same card as the case-studies grid: 580x516 frame, notched
                     corner, rounded, title underneath. */}
-                <Link href="/case-studies" className="group block">
+                <Link
+                  href="/case-studies"
+                  aria-label={`${item.title} — view brand case studies`}
+                  className="group block"
+                >
                   <div className="clip-notch overflow-hidden rounded-[20px]">
                     <div className="relative aspect-[580/516] w-full bg-black/[.06]">
                       <Image

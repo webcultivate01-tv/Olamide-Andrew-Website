@@ -16,6 +16,11 @@ export const SITE_NAME = "Olamide Andrew";
 export const SITE_DESCRIPTION =
   "Ọlámidé (Lah Meday) is a Strategic Brand Designer. Brand strategy, positioning and identity for founders and growing businesses.";
 
+export const LINKEDIN_URL = "https://www.linkedin.com/in/olamide-andrew-41209b25b/";
+
+/** Profiles that belong to Olamide, used for the schema.org `sameAs` links. */
+export const SAME_AS = [LINKEDIN_URL];
+
 /** Absolute URL for a site path such as "/about". */
 export const absoluteUrl = (path = "/") => `${SITE_URL}${path}`;
 

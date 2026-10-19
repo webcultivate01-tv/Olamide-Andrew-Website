@@ -14,7 +14,8 @@ export const BLOG_POST_STATUSES = ["DRAFT", "PUBLISHED"];
 // The two single-post lookups below add it back.
 const LIST_COLUMNS = `
   id, title, slug, excerpt, author, tags, cover_image_url, cover_image_alt,
-  reading_time, status, published_at, created_at, updated_at
+  reading_time, status, published_at, created_at, updated_at,
+  seo_title, seo_description, seo_keywords, seo_image_url, seo_no_index
 `;
 
 const FULL_COLUMNS = `${LIST_COLUMNS}, content`;
@@ -76,8 +77,9 @@ export const createBlogPost = async (post) => {
   const [result] = await pool.query(
     `INSERT INTO blog_posts
        (title, slug, excerpt, content, author, tags, cover_image_url,
-        cover_image_alt, reading_time, status, published_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        cover_image_alt, reading_time, status, published_at,
+        seo_title, seo_description, seo_keywords, seo_image_url, seo_no_index)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       post.title,
       post.slug,
@@ -90,6 +92,11 @@ export const createBlogPost = async (post) => {
       post.readingTime,
       post.status,
       post.publishedAt,
+      post.seoTitle ?? null,
+      post.seoDescription ?? null,
+      post.seoKeywords ?? null,
+      post.seoImageUrl ?? null,
+      post.seoNoIndex ? 1 : 0,
     ]
   );
   return result.insertId;
@@ -180,7 +187,9 @@ export const updateBlogPost = async (id, post) => {
     `UPDATE blog_posts SET
        title = ?, slug = ?, excerpt = ?, content = ?, author = ?, tags = ?,
        cover_image_url = ?, cover_image_alt = ?, reading_time = ?,
-       status = ?, published_at = ?
+       status = ?, published_at = ?,
+       seo_title = ?, seo_description = ?, seo_keywords = ?, seo_image_url = ?,
+       seo_no_index = ?
      WHERE id = ?`,
     [
       post.title,
@@ -194,6 +203,11 @@ export const updateBlogPost = async (id, post) => {
       post.readingTime,
       post.status,
       post.publishedAt,
+      post.seoTitle,
+      post.seoDescription,
+      post.seoKeywords,
+      post.seoImageUrl,
+      post.seoNoIndex ? 1 : 0,
       id,
     ]
   );

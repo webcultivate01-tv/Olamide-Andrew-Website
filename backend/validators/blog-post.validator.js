@@ -102,6 +102,54 @@ const tags = z
   // The column is 255 characters; eight 40-character tags would overflow it.
   .refine((value) => value.join(",").length <= 255, "Those tags are too long altogether.");
 
+// ---------------------------------------------------------------------------
+// SEO
+// ---------------------------------------------------------------------------
+
+// All optional: a blank one falls back to the post's own title, excerpt,
+// tags or cover on the public page. The ceilings are the column sizes; the
+// admin form warns well before them at the lengths search engines display.
+const seoTitle = optionalText(70, "SEO title");
+const seoDescription = optionalText(320, "Meta description");
+
+// Same two shapes coverImageUrl allows, and for the same reason.
+const seoImageUrl = optionalText(500, "Share image").refine(
+  (value) => value === null || /^\/[\w\-./]*$/.test(value) || /^https:\/\/\S+$/.test(value),
+  "The share image must be an uploaded file or an https:// address."
+);
+
+/**
+ * Keywords are phrases ("brand strategy for startups"), so unlike tags they
+ * keep their spaces. They arrive as an array or a comma-separated string and
+ * leave as one tidy comma-separated string, or null for none.
+ */
+const seoKeywords = z
+  .union([z.string(), z.array(z.string())])
+  .nullish()
+  .transform((value) => {
+    if (value === null || value === undefined) return [];
+    const parts = Array.isArray(value) ? value : value.split(",");
+    const seen = new Set();
+
+    return parts
+      .map((keyword) => String(keyword).replace(/\s+/g, " ").trim())
+      .filter((keyword) => {
+        const key = keyword.toLowerCase();
+        if (!keyword || seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+  })
+  .refine((value) => value.length <= 20, "Please use 20 keywords or fewer.")
+  .refine(
+    (value) => value.every((keyword) => keyword.length <= 60),
+    "Each keyword must be 60 characters or fewer."
+  )
+  .transform((value) => (value.length ? value.join(", ") : null))
+  .refine((value) => value === null || value.length <= 500, "Those keywords are too long altogether.");
+
+const seoNoIndex = z.boolean({ error: "Hide from search engines must be on or off." });
+
 const status = z.enum(BLOG_POST_STATUSES, {
   error: `Status must be one of: ${BLOG_POST_STATUSES.join(", ")}.`,
 });
@@ -177,6 +225,11 @@ export const createBlogPostSchema = z.object({
   // half-written can reach the website by being saved too early.
   status: status.default("DRAFT"),
   blocks: blockList.optional().default([]),
+  seoTitle,
+  seoDescription,
+  seoKeywords,
+  seoImageUrl,
+  seoNoIndex: seoNoIndex.default(false),
 });
 
 // Every field is optional here: the edit form sends the whole record, but a
@@ -196,6 +249,11 @@ export const updateBlogPostSchema = z
     // Left out entirely means "leave the blocks alone"; an explicit [] is how
     // the form says "delete them all".
     blocks: blockList.optional(),
+    seoTitle: seoTitle.optional(),
+    seoDescription: seoDescription.optional(),
+    seoKeywords: seoKeywords.optional(),
+    seoImageUrl: seoImageUrl.optional(),
+    seoNoIndex: seoNoIndex.optional(),
   })
   .refine(
     (value) => Object.keys(value).length > 0,

@@ -33,6 +33,11 @@ const toTagArray = (value) => (value ? value.split(",").filter(Boolean) : []);
 // later "has tags?" check has one answer to look for instead of two.
 const toTagColumn = (tags) => (tags.length ? tags.join(",") : null);
 
+// SEO keywords are stored "brand strategy, rebrand" - phrases, so split on
+// the comma alone and trim, rather than the tag rule above.
+const toKeywordArray = (value) =>
+  value ? value.split(",").map((keyword) => keyword.trim()).filter(Boolean) : [];
+
 // A database row is snake_case and carries MySQL Date objects. The panel and
 // the website both want camelCase and ISO strings, so every response goes
 // through here.
@@ -58,6 +63,11 @@ const toApiPost = (row) => ({
   publishedAt: row.published_at,
   createdAt: row.created_at,
   updatedAt: row.updated_at,
+  seoTitle: row.seo_title ?? null,
+  seoDescription: row.seo_description ?? null,
+  seoKeywords: toKeywordArray(row.seo_keywords),
+  seoImageUrl: row.seo_image_url ?? null,
+  seoNoIndex: Boolean(row.seo_no_index),
   ...(row.blocks !== undefined ? { blocks: row.blocks.map(toApiBlock) } : {}),
 });
 
@@ -353,6 +363,12 @@ export const updatePost = async (req, res, next) => {
       coverImageAlt:
         body.coverImageAlt !== undefined ? body.coverImageAlt : existing.cover_image_alt,
       status: body.status ?? existing.status,
+      seoTitle: body.seoTitle !== undefined ? body.seoTitle : existing.seo_title,
+      seoDescription:
+        body.seoDescription !== undefined ? body.seoDescription : existing.seo_description,
+      seoKeywords: body.seoKeywords !== undefined ? body.seoKeywords : existing.seo_keywords,
+      seoImageUrl: body.seoImageUrl !== undefined ? body.seoImageUrl : existing.seo_image_url,
+      seoNoIndex: body.seoNoIndex ?? Boolean(existing.seo_no_index),
     };
 
     // Recomputed whenever the body changes, so the stored minutes and the
@@ -389,9 +405,20 @@ export const updatePost = async (req, res, next) => {
     // Clean it up after the row is safely saved, never before.
     if (
       body.coverImageUrl !== undefined &&
-      body.coverImageUrl !== existing.cover_image_url
+      body.coverImageUrl !== existing.cover_image_url &&
+      existing.cover_image_url !== merged.seoImageUrl
     ) {
       await removeUploadedImage(existing.cover_image_url);
+    }
+
+    // The same for the share image - unless the post still uses that file as
+    // its cover, which an admin can point both fields at.
+    if (
+      body.seoImageUrl !== undefined &&
+      body.seoImageUrl !== existing.seo_image_url &&
+      existing.seo_image_url !== merged.coverImageUrl
+    ) {
+      await removeUploadedImage(existing.seo_image_url);
     }
 
     const post = await blogModel.findById(id);
@@ -450,6 +477,9 @@ export const deletePost = async (req, res, next) => {
 
     await blogModel.deleteById(id);
     await removeUploadedImage(existing.cover_image_url);
+    if (existing.seo_image_url !== existing.cover_image_url) {
+      await removeUploadedImage(existing.seo_image_url);
+    }
 
     return sendSuccess(res, 200, "Post deleted.");
   } catch (error) {
