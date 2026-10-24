@@ -35,6 +35,36 @@ const nextConfig = {
     ],
     dangerouslyAllowLocalIP: isLocalApi,
   },
+
+  // The route folders live in app/pages/ to keep app/ tidy, but "pages" must
+  // not appear in the public URLs. Each public path is rewritten onto its
+  // folder; listing them (rather than a catch-all) keeps the metadata routes
+  // — sitemap.xml, robots.txt, icon.png — and /_next out of the rewrite.
+  async rewrites() {
+    return [
+      { source: "/", destination: "/pages" },
+      ...[
+        "about",
+        "admin",
+        "blog",
+        "case-studies",
+        "contact",
+        "insights",
+        "privacy-policy",
+        "terms-and-conditions",
+        "zz-preview",
+      ].map((segment) => ({
+        source: `/${segment}/:path*`,
+        destination: `/pages/${segment}/:path*`,
+      })),
+    ];
+  },
+
+  // Direct hits on /pages/... would be a duplicate URL, and would skip the
+  // admin check in proxy.js, which matches on the public /admin paths.
+  async redirects() {
+    return [{ source: "/pages/:path*", destination: "/:path*", permanent: true }];
+  },
 };
 
 export default nextConfig;

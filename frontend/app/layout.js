@@ -1,9 +1,9 @@
 import { Anton, Bodoni_Moda, Inter, Oswald } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
-import SiteHeader from "./components/site-header";
-import SiteFooter from "./components/site-footer";
-import SiteChrome from "./components/site-chrome";
+import SiteHeader from "@/components/shared/site-header";
+import SiteFooter from "@/components/shared/site-footer";
+import SiteChrome from "@/components/shared/site-chrome";
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION, SAME_AS } from "@/lib/site";
 
 const inter = Inter({
