@@ -1,4 +1,5 @@
 import { Anton, Bodoni_Moda, Inter, Oswald } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import SiteHeader from "./components/site-header";
 import SiteFooter from "./components/site-footer";
@@ -111,6 +112,19 @@ export default function RootLayout({ children }) {
       className={`${inter.variable} ${oswald.variable} ${anton.variable} ${bodoni.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        {/* Google Analytics — lives in the root layout so every page is tracked. */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-71DQKG60DF"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-71DQKG60DF');
+          `}
+        </Script>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
