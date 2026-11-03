@@ -31,56 +31,20 @@ const formatDate = (value) => {
   return `${month} ${day}${ORDINAL(day)}, ${date.getFullYear()}`;
 };
 
-// The design is built around two full rows (six cards, one of each category
-// per row). Real posts come first; while the blog has fewer than six
-// published, these fill the rest out to that shape rather than leaving the
-// grid looking sparse.
-//
-// Built from whatever categories the admin panel has right now rather than a
-// fixed three, so this still works once a fourth is added - the slice below
-// caps it back down to MIN_CARDS regardless of how many that produces, and an
-// empty category list just skips the filler rather than crashing.
-const buildFillerPosts = (categories) =>
-  categories.length
-    ? [0, 1].flatMap((row) =>
-        categories.map((category, index) => {
-          // The first Branding card carries the featured article's title and
-          // a photo from the home hero.
-          const featured = category.slug === "branding" && row === 0;
-
-          return {
-            id: `filler-${category.slug}-${row}-${index}`,
-            slug: featured
-              ? "how-to-build-thoughtful-brands-with-clear-direction"
-              : undefined,
-            title: featured
-              ? "How to build thoughtful brands with clear direction"
-              : "Designing Brands geared to make impact.",
-            tags: [category.slug],
-            readingTime: 6,
-            publishedAt: "2024-05-06",
-            coverImageUrl: featured ? "/uploads/blog/branding/the-problem-with-pressure/26f64686bd8dbd2bc9f766a3bce0c778.png" : null,
-            coverImageAlt: featured ? "Sample: Coca Cola Branding" : undefined,
-          };
-        })
-      )
-    : [];
-
-const MIN_CARDS = 6;
-
 export default function InsightsGrid({ posts = [], categories = [] }) {
   const [active, setActive] = useState("all");
+  // Only real posts are shown, and a category only gets a filter button once
+  // at least one published post uses it - a category with no posts yields no
+  // button and no card.
   const paletteCategories = withPalette(categories);
-  const fillerPosts = buildFillerPosts(paletteCategories);
-  const source =
-    posts.length >= MIN_CARDS
-      ? posts
-      : [...posts, ...fillerPosts].slice(0, MIN_CARDS);
+  const usedCategories = paletteCategories.filter((category) =>
+    posts.some((post) => post.tags?.includes(category.slug))
+  );
 
   const filtered =
     active === "all"
-      ? source
-      : source.filter((post) => post.tags?.includes(active));
+      ? posts
+      : posts.filter((post) => post.tags?.includes(active));
 
   return (
     <section className="bg-background">
@@ -103,7 +67,7 @@ export default function InsightsGrid({ posts = [], categories = [] }) {
             All
           </button>
 
-          {paletteCategories.map((category) => (
+          {usedCategories.map((category) => (
             <button
               key={category.slug}
               type="button"
@@ -183,7 +147,9 @@ export default function InsightsGrid({ posts = [], categories = [] }) {
           </div>
         ) : (
           <p className="mt-16 text-center text-black/50">
-            No posts in this category yet.
+            {posts.length
+              ? "No posts in this category yet."
+              : "No posts yet. Check back soon."}
           </p>
         )}
       </div>
