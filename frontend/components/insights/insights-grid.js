@@ -33,13 +33,9 @@ const formatDate = (value) => {
 
 export default function InsightsGrid({ posts = [], categories = [] }) {
   const [active, setActive] = useState("all");
-  // Only real posts are shown, and a category only gets a filter button once
-  // at least one published post uses it - a category with no posts yields no
-  // button and no card.
+  // Every category from the admin panel gets a filter button, but only real
+  // posts become cards - a category with no posts shows no card.
   const paletteCategories = withPalette(categories);
-  const usedCategories = paletteCategories.filter((category) =>
-    posts.some((post) => post.tags?.includes(category.slug))
-  );
 
   const filtered =
     active === "all"
@@ -67,7 +63,7 @@ export default function InsightsGrid({ posts = [], categories = [] }) {
             All
           </button>
 
-          {usedCategories.map((category) => (
+          {paletteCategories.map((category) => (
             <button
               key={category.slug}
               type="button"
