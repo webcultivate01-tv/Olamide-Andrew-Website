@@ -4,16 +4,6 @@ import { mediaUrl } from "@/lib/api";
 import Reveal from "@/components/shared/reveal";
 import RevealWords from "@/components/shared/reveal-words";
 
-// `slug` matches the seed data in backend/database/seed/case-studies.data.js,
-// so a card still links somewhere real even on the rare load where the API
-// couldn't be reached and this fallback list renders instead.
-const STATIC_STUDIES = [
-  { id: "patches",  slug: "patches",                   src: "/case-studies/Patches.png",  title: "Patches",                   summary: "" },
-  { id: "skyline",  slug: "skyline-finance",           src: "/case-studies/Skyline.png",  title: "Skyline Finance",            summary: "" },
-  { id: "lumina",   slug: "lumina-wellness",           src: "/case-studies/Lumina.png",   title: "Lumina Wellness",            summary: "" },
-  { id: "atlas",    slug: "atlas-construction-group",  src: "/case-studies/Atlas.png",    title: "Atlas Construction Group",   summary: "" },
-];
-
 // Studies that carry the folded-tab callout (see insights-hero.js for the
 // same shape: two clip-path triangles either side of a white label block,
 // with the light-blue underside on the left edge so the fold reads as 3D
@@ -66,7 +56,7 @@ export default function CaseStudyGrid({ studies = [] }) {
         </Reveal>
 
         <div className="mx-auto mt-12 grid max-w-[1240px] gap-x-5 gap-y-11 sm:grid-cols-2 md:mt-16 lg:mt-20">
-          {(visible.length ? visible : STATIC_STUDIES).map((study, index) => (
+          {visible.map((study, index) => (
             // The whole card rolls up into place (3D tip on its own bottom
             // edge) before the image's own wipe plays inside it — the two
             // reveals nest without conflict since they sit on different
