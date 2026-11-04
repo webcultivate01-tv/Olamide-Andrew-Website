@@ -106,16 +106,15 @@ export default function BlogPostDetail({ post, categories = [], otherPosts = [] 
 
         {coverSrc ? (
           <Reveal variant="wipe" delay={220} className="mt-10 max-w-[1280px] overflow-hidden rounded-2xl">
-            <div className="relative aspect-[370/200] w-full md:aspect-[1280/684]">
-              <Image
-                src={coverSrc}
-                alt={post.coverImageAlt || post.title || ""}
-                fill
-                sizes="(min-width: 1280px) 1280px, 100vw"
-                className="object-cover"
-                priority
-              />
-            </div>
+            <Image
+              src={coverSrc}
+              alt={post.coverImageAlt || post.title || ""}
+              width={0}
+              height={0}
+              sizes="(min-width: 1280px) 1280px, 100vw"
+              className="block h-auto w-full"
+              priority
+            />
           </Reveal>
         ) : null}
 

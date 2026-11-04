@@ -115,7 +115,7 @@ export default function InsightsGrid({ posts = [], categories = [] }) {
                               alt={post.coverImageAlt || post.title || ""}
                               fill
                               sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-                              className="object-cover"
+                              className="object-contain"
                             />
                           ) : null}
 

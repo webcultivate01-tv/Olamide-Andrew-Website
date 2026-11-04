@@ -77,7 +77,7 @@ export default function CaseStudyGrid({ studies = [] }) {
                     <div>
                       {/* 580×360 — same card size as the "Other Case Studies"
                           slider on the detail pages. */}
-                      <div className="relative aspect-[580/360] w-full">
+                      <div className="relative aspect-[580/360] w-full bg-black/[.05]">
                         {/* mediaUrl resolves the stored path: an upload lives on
                             the API's origin, an original launch image in this
                             site's own public folder. */}
@@ -86,7 +86,7 @@ export default function CaseStudyGrid({ studies = [] }) {
                           alt={study.imageAlt || study.title || ""}
                           fill
                           sizes="(min-width: 1600px) 620px, (min-width: 640px) 50vw, 100vw"
-                          className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                          className="object-contain transition-transform duration-700 ease-out group-hover:scale-105"
                         />
 
                         {RIBBONS[study.title] && (

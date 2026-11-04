@@ -44,7 +44,7 @@ export default function CaseStudyHero({ src, alt }) {
     <>
       <div
         ref={heroRef}
-        className="sticky top-0 z-0 hidden h-[min(40vw,75svh)] w-full overflow-hidden md:block"
+        className="sticky top-0 z-0 hidden h-[min(40vw,75svh)] w-full overflow-hidden bg-[#f1f1f1] md:block"
       >
         {/* The drift gets a layer of its own above the reveal rather than
             sharing one with it: the wipe's settle animation owns the
@@ -60,7 +60,7 @@ export default function CaseStudyHero({ src, alt }) {
                   fill
                   priority
                   sizes="100vw"
-                  className="object-cover"
+                  className="object-contain"
                 />
               </div>
             </div>

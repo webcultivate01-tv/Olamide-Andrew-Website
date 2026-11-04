@@ -24,9 +24,14 @@ function ImageBlock({ block, delay = 0 }) {
   return (
     <Reveal variant="wipe" delay={delay} className="overflow-hidden">
       <div>
-        <div className={`relative ${FULL_FRAME}`}>
-          <Image src={src} alt={block.imageAlt || ""} fill sizes="100vw" className="object-cover" />
-        </div>
+        <Image
+          src={src}
+          alt={block.imageAlt || ""}
+          width={0}
+          height={0}
+          sizes="100vw"
+          className="block h-auto w-full"
+        />
       </div>
     </Reveal>
   );

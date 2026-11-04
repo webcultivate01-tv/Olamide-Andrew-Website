@@ -39,15 +39,15 @@ function ImageBlock({ block, delay = 0 }) {
   return (
     <Reveal variant="wipe" delay={delay} className="overflow-hidden">
       <div>
-        <div className={`relative ${frameFor(block.layout)}`}>
-          <Image
-            src={src}
-            alt={block.imageAlt || ""}
-            fill
-            sizes={sizesFor(block.layout)}
-            className="object-cover"
-          />
-        </div>
+        {/* Natural height: the whole image shows, never cropped or stretched. */}
+        <Image
+          src={src}
+          alt={block.imageAlt || ""}
+          width={0}
+          height={0}
+          sizes={sizesFor(block.layout)}
+          className="block h-auto w-full"
+        />
       </div>
     </Reveal>
   );
@@ -120,7 +120,7 @@ export default function ContentBlocks({ blocks = [] }) {
           return (
             <SplitRow
               key={index}
-              className={`grid grid-cols-2 ${PAIR_GAP}`}
+              className={`grid grid-cols-2 items-start ${PAIR_GAP}`}
               left={<Block block={row.blocks[0]} delay={delay} />}
               right={<Block block={row.blocks[1]} delay={delay + 90} />}
             />
@@ -136,7 +136,7 @@ export default function ContentBlocks({ blocks = [] }) {
         // one the admin picked.
         if (row.block.layout === "HALF") {
           return (
-            <div key={index} className={`${FULL_BLEED} grid grid-cols-2 ${PAIR_GAP}`}>
+            <div key={index} className={`${FULL_BLEED} grid grid-cols-2 items-start ${PAIR_GAP}`}>
               <Block block={row.block} delay={delay} />
             </div>
           );

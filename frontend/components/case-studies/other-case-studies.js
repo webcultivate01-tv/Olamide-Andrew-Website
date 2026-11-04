@@ -16,13 +16,13 @@ function StudyCard({ study }) {
   return (
     <Link href={`/case-studies/${study.slug}`} className="group block">
       <div className="clip-notch overflow-hidden rounded-[16px]">
-        <div className="relative aspect-[580/360] w-full">
+        <div className="relative aspect-[580/360] w-full bg-black/[.05]">
           <Image
             src={mediaUrl(study.imageUrl)}
             alt={study.imageAlt || study.title || ""}
             fill
             sizes="(min-width: 640px) 50vw, 100vw"
-            className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+            className="object-contain transition-transform duration-700 ease-out group-hover:scale-105"
           />
         </div>
       </div>

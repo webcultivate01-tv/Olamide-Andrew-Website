@@ -73,15 +73,14 @@ export default function CaseStudyDetail({ study, otherStudies = [] }) {
 
             {heroSrc ? (
               <Reveal variant="wipe" delay={180} className="mt-8 overflow-hidden">
-                <div className="relative aspect-[3/2] w-full">
-                  <Image
-                    src={heroSrc}
-                    alt={study.imageAlt || study.title || ""}
-                    fill
-                    sizes="100vw"
-                    className="object-cover"
-                  />
-                </div>
+                <Image
+                  src={heroSrc}
+                  alt={study.imageAlt || study.title || ""}
+                  width={0}
+                  height={0}
+                  sizes="100vw"
+                  className="block h-auto w-full"
+                />
               </Reveal>
             ) : null}
 
