@@ -7,7 +7,7 @@
 // the hero above it — the hero keeps its own full-bleed ratio, everything
 // after it reads as a slightly lower-profile column of images.
 export const FULL_FRAME =
-  "aspect-[3/2] w-full sm:aspect-[2/1] md:aspect-[10/3]";
+  "aspect-[3/2] w-full sm:aspect-[2/1] md:aspect-[16/5]";
 
 // Two HALF blocks split that same width between them. Cut to the full
 // frame's own ratio each one would come out a thin strip, so a half block is
@@ -20,7 +20,7 @@ export const HALF_FRAME =
 // slight — wide enough that the pair reads as two images rather than one
 // accidental join, narrow enough that the row still reads as a single band
 // split in two rather than as a pair of cards.
-export const PAIR_GAP = "gap-2 md:gap-3";
+export const PAIR_GAP = "gap-4 md:gap-8";
 
 // Pulls a row out of the page's padded column so it spans the whole
 // viewport, which is what puts a full image's edges — and the outer edges of
