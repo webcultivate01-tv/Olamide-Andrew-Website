@@ -963,7 +963,7 @@ export default function BlogPostForm({ post = null }) {
               disabled={busy}
               className="font-nav border border-black/15 px-4 py-2 text-xs font-bold tracking-[0.08em] text-navy uppercase transition-colors hover:bg-navy hover:text-white disabled:opacity-50"
             >
-              + Full image
+              + Full image (1920 × 600 px)
             </button>
             <button
               type="button"
@@ -971,7 +971,7 @@ export default function BlogPostForm({ post = null }) {
               disabled={busy}
               className="font-nav border border-black/15 px-4 py-2 text-xs font-bold tracking-[0.08em] text-navy uppercase transition-colors hover:bg-navy hover:text-white disabled:opacity-50"
             >
-              + Two half images
+              + Two half images (1200 × 800 px each)
             </button>
             <button
               type="button"

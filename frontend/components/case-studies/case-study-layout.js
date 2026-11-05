@@ -60,3 +60,9 @@ export function groupIntoRows(blocks) {
 
   return rows;
 }
+
+// The pixel size an admin should export an image at for each block width, so
+// it fills its frame exactly (FULL is 16:5, HALF is 3:2). Shown in the admin
+// wherever an image is added; keep in step with FULL_FRAME / HALF_FRAME above.
+export const imageSizeFor = (layout) =>
+  layout === "HALF" ? "1200 × 800 px" : "1920 × 600 px";

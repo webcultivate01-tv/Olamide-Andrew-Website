@@ -5,6 +5,7 @@ import { mediaUrl } from "@/lib/api";
 import {
   PAIR_GAP,
   frameFor,
+  imageSizeFor,
   groupIntoRows,
 } from "@/components/case-studies/case-study-layout";
 import { withPalette, displayCategory } from "@/components/insights/categories";
@@ -87,6 +88,7 @@ function ImageSlot({
   src,
   alt,
   frame,
+  hint,
   label,
   onFile,
   onClear,
@@ -123,6 +125,7 @@ function ImageSlot({
           </span>
           <span className="px-4 text-[11px] text-black/35">
             Click to choose a JPEG, PNG, WebP or AVIF
+            {hint ? <><br />Recommended size: <strong>{hint}</strong></> : null}
           </span>
         </button>
       )}
@@ -241,6 +244,7 @@ function PreviewBlock({
           alt={block.imageAlt}
           frame={frame}
           label="Add image"
+          hint={imageSizeFor(block.layout)}
           uploading={uploading}
           disabled={disabled}
           controlsAt="bottom"
@@ -469,7 +473,7 @@ export default function BlogPostPreview({
           disabled={disabled}
           className={ADD_BUTTON}
         >
-          + Full image
+          + Full image (1920 × 600 px)
         </button>
         <button
           type="button"
@@ -477,7 +481,7 @@ export default function BlogPostPreview({
           disabled={disabled}
           className={ADD_BUTTON}
         >
-          + Two half images
+          + Two half images (1200 × 800 px each)
         </button>
         <button
           type="button"
