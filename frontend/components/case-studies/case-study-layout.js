@@ -7,7 +7,7 @@
 // the hero above it — the hero keeps its own full-bleed ratio, everything
 // after it reads as a slightly lower-profile column of images.
 export const FULL_FRAME =
-  "aspect-[3/2] w-full sm:aspect-[2/1] md:aspect-[4/1]";
+  "aspect-[3/2] w-full sm:aspect-[2/1] md:aspect-[10/3]";
 
 // Two HALF blocks split that same width between them. Cut to the full
 // frame's own ratio each one would come out a thin strip, so a half block is
