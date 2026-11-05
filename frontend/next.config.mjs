@@ -52,7 +52,6 @@ const nextConfig = {
         "insights",
         "privacy-policy",
         "terms-and-conditions",
-        "zz-preview",
       ].map((segment) => ({
         source: `/${segment}/:path*`,
         destination: `/pages/${segment}/:path*`,

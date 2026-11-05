@@ -152,9 +152,6 @@ export const getDashboardOverview = () => request("/api/admin/dashboard/overview
 
 // Case studies ---------------------------------------------------------------
 
-// Public. The website's case studies page reads this; no session involved.
-export const getPublishedCaseStudies = () => request("/api/case-studies");
-
 // Everything below needs an admin session, which travels in the cookie.
 
 export const getCaseStudies = ({ page = 1, perPage = 20, status = "ALL", search = "" } = {}) => {
@@ -207,19 +204,8 @@ export const caseStudyStatusLabel = (value) =>
 
 // Blog -----------------------------------------------------------------------
 
-// Public. The website's blog reads these; no session involved. Unlike the case
-// study grid the list is paged — a blog grows without limit.
-export const getPublishedPosts = ({ page = 1, perPage = 12, tag = "" } = {}) => {
-  const query = new URLSearchParams({ page, perPage });
-  if (tag) query.set("tag", tag);
-
-  return request(`/api/blog?${query}`);
-};
-
 export const getPublishedPost = (slug) =>
   request(`/api/blog/${encodeURIComponent(slug)}`);
-
-export const getPublishedPostTags = () => request("/api/blog/tags");
 
 // Everything below needs an admin session, which travels in the cookie.
 

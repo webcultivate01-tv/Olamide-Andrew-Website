@@ -87,14 +87,6 @@ export const findById = async (id) => {
   return rows[0] || null;
 };
 
-export const findBySlug = async (slug) => {
-  const [rows] = await pool.query(
-    `SELECT ${COLUMNS} FROM case_studies WHERE slug = ? LIMIT 1`,
-    [slug]
-  );
-  return rows[0] || null;
-};
-
 // Whether some *other* row already uses this slug. `excludeId` is the study
 // being edited, which is allowed to keep the slug it already has.
 export const slugExists = async (slug, excludeId = null) => {

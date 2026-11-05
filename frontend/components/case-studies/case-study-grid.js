@@ -86,7 +86,7 @@ export default function CaseStudyGrid({ studies = [] }) {
                           alt={study.imageAlt || study.title || ""}
                           fill
                           sizes="(min-width: 1600px) 620px, (min-width: 640px) 50vw, 100vw"
-                          className="object-contain transition-transform duration-700 ease-out group-hover:scale-105"
+                          className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                         />
 
                         {RIBBONS[study.title] && (
@@ -115,6 +115,17 @@ export default function CaseStudyGrid({ studies = [] }) {
                 <p className="mt-2 max-w-[540px] text-base leading-[1.9] text-black/70">
                   {study.summary}
                 </p>
+
+                {/* A cue that the card opens the full study. A span, not a
+                    nested link: the whole card is already the link. */}
+                <div className="mt-4 flex justify-end">
+                  <span className="font-nav inline-flex items-center gap-2.5 bg-accent px-6 py-3 text-sm font-bold tracking-[0.02em] text-black uppercase transition-colors group-hover:bg-accent-hover">
+                    View case study
+                    <span aria-hidden className="transition-transform duration-300 group-hover:translate-x-1">
+                      →
+                    </span>
+                  </span>
+                </div>
               </Link>
             </Reveal>
           ))}

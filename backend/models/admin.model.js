@@ -30,14 +30,6 @@ export const updatePassword = async (id, passwordHash) => {
   return result.affectedRows === 1;
 };
 
-export const createAdmin = async (email, passwordHash, role = "admin") => {
-  const [result] = await pool.query(
-    "INSERT INTO admins (email, password_hash, role) VALUES (?, ?, ?)",
-    [email, passwordHash, role]
-  );
-  return result.insertId;
-};
-
 // The profile page: a name, an email and a photo. Password lives behind its
 // own OTP-gated flow and is never touched here.
 export const updateProfile = async (id, { name, email, avatarUrl }) => {

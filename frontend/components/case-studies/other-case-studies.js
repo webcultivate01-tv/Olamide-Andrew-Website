@@ -14,15 +14,18 @@ const SLIDE_MS = 700;
 
 function StudyCard({ study }) {
   return (
-    <Link href={`/case-studies/${study.slug}`} className="group block">
+    // Card is 88% of its slot wide, so more room opens up between neighbours.
+    // The frame ratio is 0.88 × 580/360, which keeps the height exactly what
+    // it was at full width — narrower, not shorter.
+    <Link href={`/case-studies/${study.slug}`} className="group block w-[88%]">
       <div className="clip-notch overflow-hidden rounded-[16px]">
-        <div className="relative aspect-[580/360] w-full bg-black/[.05]">
+        <div className="relative aspect-[1.418] w-full bg-black/[.05]">
           <Image
             src={mediaUrl(study.imageUrl)}
             alt={study.imageAlt || study.title || ""}
             fill
             sizes="(min-width: 640px) 50vw, 100vw"
-            className="object-contain transition-transform duration-700 ease-out group-hover:scale-105"
+            className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
           />
         </div>
       </div>
@@ -34,6 +37,15 @@ function StudyCard({ study }) {
           {study.categories?.length ? study.categories.join(", ") : study.service}
         </p>
       ) : null}
+
+      <div className="mt-3 flex justify-end">
+        <span className="font-nav inline-flex items-center gap-2 bg-accent px-5 py-2.5 text-sm font-bold tracking-[0.02em] text-black uppercase transition-colors group-hover:bg-accent-hover">
+          View case study
+          <span aria-hidden className="transition-transform duration-300 group-hover:translate-x-1">
+            →
+          </span>
+        </span>
+      </div>
     </Link>
   );
 }
@@ -97,13 +109,13 @@ function Carousel({ studies, slots }) {
   }, [animated]);
 
   return (
-    <div className="mt-6 -mx-2.5 overflow-hidden md:mt-8">
+    <div className="mt-6 -mx-5 overflow-hidden md:mt-8">
       <div
         className={`flex ${animated ? "transition-transform duration-700 ease-out" : ""}`}
         style={{ transform: `translateX(-${index * (100 / slots)}%)` }}
       >
         {track.map((study, i) => (
-          <div key={`${study.id}-${i}`} className="w-full shrink-0 px-2.5 sm:w-1/2">
+          <div key={`${study.id}-${i}`} className="w-full shrink-0 px-5 sm:w-1/2">
             <StudyCard study={study} />
           </div>
         ))}
