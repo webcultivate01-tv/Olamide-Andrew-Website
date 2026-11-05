@@ -30,7 +30,9 @@ function ImageBlock({ block, delay = 0 }) {
           width={0}
           height={0}
           sizes="100vw"
-          className="block h-auto w-full"
+          // min-h gives the not-yet-loaded image some height; a lazy image
+          // with none never reaches the viewport and so never loads.
+          className="block h-auto min-h-[50vw] w-full"
         />
       </div>
     </Reveal>
