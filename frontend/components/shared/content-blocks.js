@@ -38,19 +38,16 @@ function ImageBlock({ block, delay = 0 }) {
   // zooms the face inside it (see [data-reveal="wipe"] in globals.css).
   return (
     <Reveal variant="wipe" delay={delay} className="overflow-hidden">
-      <div>
-        {/* Natural height: the whole image shows, never cropped or stretched.
-            Eager, not lazy: with width/height 0 the image has no height until
-            it loads, and a lazy image with no height never enters the
-            viewport, so it would never load at all. */}
+      {/* A fixed frame per layout (full / half): whatever the admin uploads
+          is scaled to fill it, so every block has the same predictable size
+          and a section fits in one view. */}
+      <div className={`relative ${frameFor(block.layout)}`}>
         <Image
           src={src}
           alt={block.imageAlt || ""}
-          width={0}
-          height={0}
-          loading="eager"
+          fill
           sizes={sizesFor(block.layout)}
-          className="block h-auto w-full"
+          className="object-cover"
         />
       </div>
     </Reveal>

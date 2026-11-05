@@ -23,16 +23,13 @@ function ImageBlock({ block, delay = 0 }) {
 
   return (
     <Reveal variant="wipe" delay={delay} className="overflow-hidden">
-      <div>
+      <div className={`relative ${FULL_FRAME}`}>
         <Image
           src={src}
           alt={block.imageAlt || ""}
-          width={0}
-          height={0}
+          fill
           sizes="100vw"
-          // min-h gives the not-yet-loaded image some height; a lazy image
-          // with none never reaches the viewport and so never loads.
-          className="block h-auto min-h-[50vw] w-full"
+          className="object-cover"
         />
       </div>
     </Reveal>
