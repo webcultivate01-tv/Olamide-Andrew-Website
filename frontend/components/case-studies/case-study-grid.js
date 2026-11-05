@@ -118,7 +118,7 @@ export default function CaseStudyGrid({ studies = [] }) {
 
                 {/* A cue that the card opens the full study. A span, not a
                     nested link: the whole card is already the link. */}
-                <div className="mt-4 flex justify-end">
+                <div className="mt-4 flex justify-start">
                   <span className="font-nav inline-flex items-center gap-2.5 bg-accent px-6 py-3 text-sm font-bold tracking-[0.02em] text-black uppercase transition-colors group-hover:bg-accent-hover">
                     View case study
                     <span aria-hidden className="transition-transform duration-300 group-hover:translate-x-1">
