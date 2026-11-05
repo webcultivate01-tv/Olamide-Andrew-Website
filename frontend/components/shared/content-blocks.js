@@ -121,7 +121,7 @@ export default function ContentBlocks({ blocks = [] }) {
           return (
             <SplitRow
               key={index}
-              className={`grid grid-cols-2 items-start ${PAIR_GAP}`}
+              className={`grid grid-cols-2 items-start px-6 md:px-[14vw] ${PAIR_GAP}`}
               left={<Block block={row.blocks[0]} delay={delay} />}
               right={<Block block={row.blocks[1]} delay={delay + 90} />}
             />
@@ -137,7 +137,7 @@ export default function ContentBlocks({ blocks = [] }) {
         // one the admin picked.
         if (row.block.layout === "HALF") {
           return (
-            <div key={index} className={`${FULL_BLEED} grid grid-cols-2 items-start ${PAIR_GAP}`}>
+            <div key={index} className={`${FULL_BLEED} grid grid-cols-2 items-start px-6 md:px-[14vw] ${PAIR_GAP}`}>
               <Block block={row.block} delay={delay} />
             </div>
           );
