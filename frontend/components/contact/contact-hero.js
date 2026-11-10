@@ -10,7 +10,7 @@ const SERVICES = [
   "Brand Strategy",
   "Visual Identity",
   "Brand Activation",
-  "Something else",
+  "Free Brand Clarity Audit",
 ];
 
 const EMPTY_FORM = {
@@ -124,6 +124,11 @@ export default function ContactHero() {
         Whether you&apos;re building a new brand, repositioning an existing one,
         or simply exploring what&apos;s next, I&apos;d love to hear about your
         business and where you want it to go
+      </p>
+
+      <p className="mt-4 text-sm text-black/60 md:text-base">
+        Based in Winnipeg, Manitoba &mdash; working with clients across Canada
+        and the US
       </p>
 
       <h2 className="font-headline mt-12 text-2xl tracking-[-0.01em] text-foreground uppercase md:mt-16 md:text-[1.75rem]">

@@ -115,9 +115,9 @@ export default function RootLayout({ children }) {
         {/* Google Analytics — lives in the root layout so every page is tracked. */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-71DQKG60DF"
-          strategy="afterInteractive"
+          strategy="lazyOnload"
         />
-        <Script id="google-analytics" strategy="afterInteractive">
+        <Script id="google-analytics" strategy="lazyOnload">
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
@@ -126,7 +126,7 @@ export default function RootLayout({ children }) {
           `}
         </Script>
         {/* Microsoft Clarity — root layout so every page is covered. */}
-        <Script id="microsoft-clarity" strategy="afterInteractive">
+        <Script id="microsoft-clarity" strategy="lazyOnload">
           {`
             (function(c,l,a,r,i,t,y){
               c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};

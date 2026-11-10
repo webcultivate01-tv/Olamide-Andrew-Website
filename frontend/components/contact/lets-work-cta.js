@@ -4,10 +4,9 @@ import { LINKEDIN_URL, INSTAGRAM_URL } from "@/lib/site";
 
 const EMAIL = "ishola826@gmail.com";
 
-// TODO: swap the placeholder href for the real Behance URL.
 const SOCIAL_LINKS = [
   { label: "LinkedIn", href: LINKEDIN_URL },
-  { label: "Behance", href: "#" },
+  { label: "Behance", href: "https://www.behance.net/andrewolamide" },
   { label: "Instagram", href: INSTAGRAM_URL },
 ];
 

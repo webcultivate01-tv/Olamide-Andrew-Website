@@ -22,7 +22,17 @@ const nextConfig = {
   // are still surfaced.
   devIndicators: false,
 
+  // gzip/brotli for HTML, JS and CSS responses (Next's default, stated so it
+  // is not lost). HTTP/2 is not set here: it is negotiated by whatever
+  // terminates TLS in front of the app (nginx, Caddy, Vercel, Cloudflare).
+  compress: true,
+
   images: {
+    // Every <Image> is re-encoded on request: AVIF where the browser supports
+    // it, WebP otherwise, so the PNG originals are never sent to visitors.
+    // Cached for a month so the re-encode is paid once, not per visit.
+    formats: ["image/avif", "image/webp"],
+    minimumCacheTTL: 60 * 60 * 24 * 30,
     remotePatterns: [
       {
         protocol: protocol.replace(":", ""),

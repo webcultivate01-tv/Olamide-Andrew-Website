@@ -35,10 +35,15 @@ export default function SiteFooter() {
             margin here is trimmed to keep the optical gap unchanged. */}
         <Wordmark className="mt-12 md:mt-16 lg:mt-20" />
 
+        <p className="mt-8 text-center text-xs text-black/65 md:text-sm">
+          Based in Winnipeg, Manitoba &mdash; working with clients across Canada
+          and the US
+        </p>
+
         {/* Legal row. From sm up it is one line: copyright left, credit
             centre, policies right. On phones it wraps into two: copyright and
             policies on the first, the credit alone on the second. */}
-        <div className="mt-6 flex flex-wrap items-center justify-between gap-x-2 gap-y-3 border-t border-black/15 pt-5 text-[10px] leading-none whitespace-nowrap text-foreground sm:flex-nowrap sm:gap-6 sm:text-xs md:mt-8 md:text-sm">
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-x-2 gap-y-3 border-t border-black/15 pt-5 text-[10px] leading-none whitespace-nowrap text-foreground sm:flex-nowrap sm:gap-6 sm:text-xs md:mt-8 md:text-sm">
           <p>
             &copy; {new Date().getFullYear()} Olamide Andrew
             <span className="hidden sm:inline">. All rights reserved.</span>
