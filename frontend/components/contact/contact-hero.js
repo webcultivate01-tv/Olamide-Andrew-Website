@@ -4,7 +4,7 @@ import { useState } from "react";
 import { ApiError, submitEnquiry } from "@/lib/api";
 import Reveal from "@/components/shared/reveal";
 
-const EMAIL = "ishola826@gmail.com";
+const EMAIL = "hello@olamideandrew.com";
 
 const SERVICES = [
   "Brand Strategy",

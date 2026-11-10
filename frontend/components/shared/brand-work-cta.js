@@ -3,7 +3,7 @@ import ArrowUpRight from "@/components/shared/arrow-up-right";
 import Reveal from "@/components/shared/reveal";
 import { LINKEDIN_URL, INSTAGRAM_URL } from "@/lib/site";
 
-const EMAIL = "ishola826@gmail.com";
+const EMAIL = "hello@olamideandrew.com";
 
 const SOCIAL_LINKS = [
   { label: "LinkedIn", href: LINKEDIN_URL },
