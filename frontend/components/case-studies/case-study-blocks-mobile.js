@@ -28,6 +28,8 @@ function ImageBlock({ block, delay = 0 }) {
           src={src}
           alt={block.imageAlt || ""}
           fill
+          loading="lazy"
+          decoding="async"
           sizes="100vw"
           className="object-contain"
         />

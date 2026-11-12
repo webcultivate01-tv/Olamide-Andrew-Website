@@ -81,6 +81,8 @@ export default function CaseStudyDetail({ study, otherStudies = [] }) {
                     src={heroSrc}
                     alt={study.imageAlt || study.title || ""}
                     fill
+                    loading="lazy"
+                    decoding="async"
                     sizes="100vw"
                     className="object-contain"
                   />

@@ -114,6 +114,8 @@ export default function InsightsGrid({ posts = [], categories = [] }) {
                               src={mediaUrl(post.coverImageUrl)}
                               alt={post.coverImageAlt || post.title || ""}
                               fill
+                              loading="lazy"
+                              decoding="async"
                               sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
                               className="object-contain"
                             />
