@@ -116,7 +116,7 @@ export default function ContactHero() {
           Ready to build
         </Reveal>
         <Reveal as="span" variant="right" delay={120} className="block">
-          Something impactful?
+          Something <span className="text-accent">impactful?</span>
         </Reveal>
       </h1>
 

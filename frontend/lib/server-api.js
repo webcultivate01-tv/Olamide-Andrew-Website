@@ -46,9 +46,12 @@ export const adminFetch = async (path) => {
  * No cookie is forwarded — these endpoints have no session and must not
  * behave differently for a signed-in admin than for a visitor.
  *
- * `no-store` rather than a revalidate window: publishing a case study should
- * show on the website immediately, and this is a handful of rows on a page
- * that is not under load.
+ * Cached for 60 seconds (ISR) rather than `no-store`: every public page was
+ * paying a full round trip to the API before it could render anything,
+ * which showed up as ~1-2s of server response time on every request. A
+ * minute-old case study list is an acceptable trade for visitors never
+ * waiting on the API directly; publishing shows up within that window
+ * instead of on the next unrelated deploy.
  *
  * A failure returns null instead of throwing. A page that cannot reach the API
  * should render without that section, not become an error screen.
@@ -69,7 +72,7 @@ export const publicFetch = async (path) => (await publicFetchResult(path)).data;
  */
 export const publicFetchResult = async (path) => {
   try {
-    const response = await fetch(`${API_URL}${path}`, { cache: "no-store" });
+    const response = await fetch(`${API_URL}${path}`, { next: { revalidate: 60 } });
 
     let payload = null;
     try {

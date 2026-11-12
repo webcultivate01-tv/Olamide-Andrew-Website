@@ -1,4 +1,4 @@
-import { Anton, Bodoni_Moda, Inter, Oswald } from "next/font/google";
+import { Anton, Inter, Oswald } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import SiteHeader from "@/components/shared/site-header";
@@ -21,12 +21,6 @@ const oswald = Oswald({
 const anton = Anton({
   variable: "--font-anton",
   weight: "400",
-  subsets: ["latin"],
-});
-
-// Variable didone — the footer wordmark pulls several weights from it.
-const bodoni = Bodoni_Moda({
-  variable: "--font-bodoni",
   subsets: ["latin"],
 });
 
@@ -109,7 +103,7 @@ export default function RootLayout({ children }) {
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${oswald.variable} ${anton.variable} ${bodoni.variable} h-full antialiased`}
+      className={`${inter.variable} ${oswald.variable} ${anton.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         {/* Google Analytics — lives in the root layout so every page is tracked. */}

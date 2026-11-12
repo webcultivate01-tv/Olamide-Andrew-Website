@@ -27,7 +27,6 @@
   --font-sans: var(--font-inter);
   --font-nav: var(--font-oswald);
   --font-headline: var(--font-anton);
-  --font-display: var(--font-bodoni);
 }
 
 /* Knocked-out display type: navy outline, no fill. The stroke is a fixed
