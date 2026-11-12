@@ -9,7 +9,7 @@ import StartProjectCta from "@/components/about/start-project-cta";
 
 const TITLE = "About Ọlámidé (Lah Meday) | Strategic Brand Designer";
 const DESCRIPTION =
-  "Meet Ọlámidé (Lah Meday), a Strategic Brand Designer with a BSc in Economics and a Diploma in Graphic Design, combining business thinking, brand strategy and visual design to help businesses communicate their value.";
+  "Meet Olamide Andrew, Winnipeg strategic brand designer. Business thinking, brand strategy and identity that help businesses communicate their value clearly.";
 
 export const metadata = pageMetadata({
   title: TITLE,

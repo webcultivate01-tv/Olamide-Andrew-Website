@@ -22,12 +22,9 @@ export const HALF_FRAME =
 // split in two rather than as a pair of cards.
 export const PAIR_GAP = "gap-4 md:gap-8";
 
-// Pulls a row out of the page's padded column so it spans the whole
-// viewport, which is what puts a full image's edges — and the outer edges of
-// a half pair — flush against the left and right of the screen. The article
-// around it is overflow-x-hidden, so the scrollbar's width cannot turn this
-// into a horizontal scroll.
-export const FULL_BLEED = "relative left-1/2 w-screen -translate-x-1/2";
+// Rows now sit inside the page's centred .container (max 1240px) instead of
+// breaking out to the viewport edges, so a row simply fills its column.
+export const FULL_BLEED = "w-full";
 
 export const frameFor = (layout) =>
   layout === "HALF" ? HALF_FRAME : FULL_FRAME;

@@ -102,10 +102,9 @@ function Block({ block, delay = 0 }) {
  * admin builds up. Renders nothing for a record with no blocks yet, rather
  * than an empty section.
  *
- * Images span the screen — a full one alone, a half pair splitting the
- * screen between them, separated by a hairline gap and with their outer
- * edges flush against it. Text is the exception throughout: it stays inside
- * the page's own column, where it is readable.
+ * Images fill the page's centred container — a full one alone, a half pair
+ * splitting it between them with a hairline gap. Text stays in a narrower
+ * column inside it, where it is readable.
  */
 export default function ContentBlocks({ blocks = [] }) {
   if (!blocks.length) return null;
@@ -121,7 +120,7 @@ export default function ContentBlocks({ blocks = [] }) {
           return (
             <SplitRow
               key={index}
-              className={`grid grid-cols-2 items-start px-6 md:px-[8vw] ${PAIR_GAP}`}
+              className={`grid grid-cols-2 items-start ${PAIR_GAP}`}
               left={<Block block={row.blocks[0]} delay={delay} />}
               right={<Block block={row.blocks[1]} delay={delay + 90} />}
             />
@@ -137,7 +136,7 @@ export default function ContentBlocks({ blocks = [] }) {
         // one the admin picked.
         if (row.block.layout === "HALF") {
           return (
-            <div key={index} className={`${FULL_BLEED} grid grid-cols-2 items-start px-6 md:px-[8vw] ${PAIR_GAP}`}>
+            <div key={index} className={`${FULL_BLEED} grid grid-cols-2 items-start ${PAIR_GAP}`}>
               <Block block={row.block} delay={delay} />
             </div>
           );

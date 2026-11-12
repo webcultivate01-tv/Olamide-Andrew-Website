@@ -132,7 +132,15 @@ function Carousel({ studies, slots }) {
  * from the right, looping back to the start once it reaches the end.
  */
 export default function OtherCaseStudies({ studies = [] }) {
-  const visible = studies.filter((study) => study.imageUrl);
+  // Drop studies without an image and any repeat of one already listed.
+  const seen = new Set();
+  const visible = studies.filter((study) => {
+    if (!study.imageUrl) return false;
+    const keys = [study.slug, (study.title || "").trim().toLowerCase()].filter(Boolean);
+    if (keys.some((key) => seen.has(key))) return false;
+    keys.forEach((key) => seen.add(key));
+    return true;
+  });
   const slots = useSlotsPerView();
 
   if (!visible.length) return null;

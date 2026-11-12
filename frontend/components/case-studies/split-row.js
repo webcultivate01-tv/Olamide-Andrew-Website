@@ -1,7 +1,7 @@
 import { FULL_BLEED } from "@/components/case-studies/case-study-layout";
 
 /**
- * A row of two half-width blocks, flush against the screen's edges with a
+ * A row of two half-width blocks, within the page container with a
  * hairline gap between them.
  */
 export default function SplitRow({ className = "", left, right }) {

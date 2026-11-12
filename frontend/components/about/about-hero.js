@@ -74,7 +74,7 @@ export default function AboutHero() {
           <div className="max-w-[632px]">
             <Image
               src="/olamide.png"
-              alt="Ọlámidé, Strategic Brand Designer"
+              alt="Olamide Andrew, strategic brand designer and logo designer in Winnipeg, Canada"
               width={632}
               height={666}
               priority

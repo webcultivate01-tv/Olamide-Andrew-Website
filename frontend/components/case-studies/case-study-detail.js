@@ -45,7 +45,8 @@ export default function CaseStudyDetail({ study, otherStudies = [] }) {
           not just the 1600px column, or a wide screen would show the pinned
           hero down either side of the page. */}
       <div className="relative z-10 bg-background">
-        <div className="mx-auto max-w-[1600px] px-5 py-14 md:px-10 md:py-20 lg:px-20 lg:py-24">
+        <div className="container">
+          <div className="py-14 md:py-20 lg:py-24">
           {/* Below md: a stacked, editorial read — breadcrumb, title, inset
               (non-pinned) hero, a pull-quote lifted from the opening
               paragraph, then the intro under an "Overview" label. */}
@@ -135,6 +136,7 @@ export default function CaseStudyDetail({ study, otherStudies = [] }) {
           </div>
 
           <OtherCaseStudies studies={otherStudies} />
+          </div>
         </div>
       </div>
     </article>

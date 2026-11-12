@@ -6,6 +6,11 @@ import { slugify } from "../validators/case-study.validator.js";
 import { uploadsDir, caseStudyUploadsDir } from "../middleware/upload.middleware.js";
 import { sendSuccess } from "../utils/response.js";
 import { AppError } from "../utils/app-error.js";
+import { notifyContentChange } from "../services/indexnow.service.js";
+
+// Tells IndexNow about a change to a live case study page (see the service).
+const pingCaseStudy = (before, after) =>
+  notifyContentChange({ section: "/case-studies", listPath: "/case-studies", before, after });
 
 // Everything the case study feature does.
 //
@@ -256,6 +261,7 @@ export const createCaseStudy = async (req, res, next) => {
     await caseStudyModel.replaceBlocks(id, body.blocks);
 
     const study = await caseStudyModel.findById(id);
+    pingCaseStudy(null, study);
 
     return sendSuccess(res, 201, "Case study created.", {
       caseStudy: toApiCaseStudy(await withBlocks(study)),
@@ -329,6 +335,7 @@ export const updateCaseStudy = async (req, res, next) => {
     }
 
     const study = await caseStudyModel.findById(id);
+    pingCaseStudy(existing, study);
 
     return sendSuccess(res, 200, "Case study saved.", {
       caseStudy: toApiCaseStudy(await withBlocks(study)),
@@ -358,6 +365,7 @@ export const updateCaseStudyStatus = async (req, res, next) => {
 
     await caseStudyModel.updateStatus(id, status, publishedAt);
     const study = await caseStudyModel.findById(id);
+    pingCaseStudy(existing, study);
 
     return sendSuccess(
       res,
@@ -384,6 +392,7 @@ export const deleteCaseStudy = async (req, res, next) => {
 
     await caseStudyModel.deleteById(id);
     await removeUploadedImage(existing.image_url);
+    pingCaseStudy(existing, null);
 
     return sendSuccess(res, 200, "Case study deleted.");
   } catch (error) {

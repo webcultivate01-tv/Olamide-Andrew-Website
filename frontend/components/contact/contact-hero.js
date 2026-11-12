@@ -127,7 +127,7 @@ export default function ContactHero() {
       </p>
 
       <p className="mt-4 text-sm text-black/60 md:text-base">
-        Based in Winnipeg, Manitoba &mdash; working with clients across Canada
+        Based in Winnipeg, Manitoba, working with clients across Canada
         and the US
       </p>
 

@@ -36,7 +36,7 @@ export default function SiteFooter() {
         <Wordmark className="mt-12 md:mt-16 lg:mt-20" />
 
         <p className="mt-8 text-center text-xs text-black/65 md:text-sm">
-          Based in Winnipeg, Manitoba &mdash; working with clients across Canada
+          Based in Winnipeg, Manitoba, working with clients across Canada
           and the US
         </p>
 

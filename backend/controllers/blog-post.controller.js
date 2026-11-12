@@ -6,6 +6,18 @@ import { slugify } from "../validators/blog-post.validator.js";
 import { uploadsDir, blogUploadsDir } from "../middleware/upload.middleware.js";
 import { sendSuccess } from "../utils/response.js";
 import { AppError } from "../utils/app-error.js";
+import { notifyContentChange } from "../services/indexnow.service.js";
+
+// Tells IndexNow about a change to a live post (see the service). Posts live
+// at /blog/<slug> and are listed on /insights. A post marked "hide from search
+// engines" in its SEO settings is never announced.
+const pingPost = (before, after) =>
+  notifyContentChange({
+    section: "/blog",
+    listPath: "/insights",
+    before: before?.seo_no_index ? null : before,
+    after: after?.seo_no_index ? null : after,
+  });
 
 // Everything the blog feature does.
 //
@@ -326,6 +338,7 @@ export const createPost = async (req, res, next) => {
     await blogModel.replaceBlocks(id, body.blocks);
 
     const post = await blogModel.findById(id);
+    pingPost(null, post);
 
     return sendSuccess(res, 201, "Post created.", {
       post: toApiPost(await withBlocks(post)),
@@ -422,6 +435,7 @@ export const updatePost = async (req, res, next) => {
     }
 
     const post = await blogModel.findById(id);
+    pingPost(existing, post);
 
     return sendSuccess(res, 200, "Post saved.", {
       post: toApiPost(await withBlocks(post)),
@@ -451,6 +465,7 @@ export const updatePostStatus = async (req, res, next) => {
 
     await blogModel.updateStatus(id, status, publishedAt);
     const post = await blogModel.findById(id);
+    pingPost(existing, post);
 
     return sendSuccess(
       res,
@@ -480,6 +495,7 @@ export const deletePost = async (req, res, next) => {
     if (existing.seo_image_url !== existing.cover_image_url) {
       await removeUploadedImage(existing.seo_image_url);
     }
+    pingPost(existing, null);
 
     return sendSuccess(res, 200, "Post deleted.");
   } catch (error) {

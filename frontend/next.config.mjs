@@ -72,7 +72,19 @@ const nextConfig = {
   // Direct hits on /pages/... would be a duplicate URL, and would skip the
   // admin check in proxy.js, which matches on the public /admin paths.
   async redirects() {
-    return [{ source: "/pages/:path*", destination: "/:path*", permanent: true }];
+    return [
+      // The site lives only at https://olamideandrew.com. Any request that
+      // arrives on the www host is sent there with a 301 (not Next's default
+      // 308 for `permanent`), keeping the path and query string, so Google
+      // sees one copy of the site instead of two.
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "www.olamideandrew.com" }],
+        destination: "https://olamideandrew.com/:path*",
+        statusCode: 301,
+      },
+      { source: "/pages/:path*", destination: "/:path*", permanent: true },
+    ];
   },
 };
 

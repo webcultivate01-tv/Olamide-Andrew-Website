@@ -63,4 +63,17 @@ export const env = {
   },
 
   frontendUrl: process.env.FRONTEND_URL || "http://localhost:3000",
+
+  // IndexNow: tells Bing, Yandex, Seznam, Naver and the other participating
+  // search engines the moment a page is published, changed or removed.
+  // The key is public by design - it must match the file served at
+  // https://olamideandrew.com/<key>.txt (frontend/public/<key>.txt). If you
+  // change INDEXNOW_KEY, rename and rewrite that file to match.
+  // Pings are only sent in production, so local edits never announce
+  // production URLs.
+  indexNow: {
+    enabled: nodeEnv === "production" && process.env.INDEXNOW_ENABLED !== "false",
+    key: process.env.INDEXNOW_KEY || "af1834080b3334fa4d3b57e96a879d2c",
+    siteUrl: (process.env.SITE_URL || "https://olamideandrew.com").replace(/\/+$/, ""),
+  },
 };

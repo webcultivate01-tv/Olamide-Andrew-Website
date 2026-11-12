@@ -14,7 +14,8 @@
     "db:setup": "npm run db:migrate && npm run db:seed && npm run db:seed:case-studies && npm run db:seed:categories && npm run db:seed:blog-posts",
     "db:seed:case-studies": "node database/seed/case-studies.seed.js",
     "db:seed:categories": "node database/seed/categories.seed.js",
-    "db:seed:blog-posts": "node database/seed/blog-posts.seed.js"
+    "db:seed:blog-posts": "node database/seed/blog-posts.seed.js",
+    "indexnow:submit": "node scripts/indexnow-submit.js"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",

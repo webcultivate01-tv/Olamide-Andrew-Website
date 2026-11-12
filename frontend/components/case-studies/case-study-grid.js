@@ -25,7 +25,16 @@ const RIBBONS = {};
  * broken. The panel shows an unmistakable "None" thumbnail on any such row.
  */
 export default function CaseStudyGrid({ studies = [] }) {
-  const visible = studies.filter((study) => study.imageUrl);
+  // Skip studies with no image, and any repeat of a study already shown
+  // (same slug or same title), so a duplicated row can never render twice.
+  const seen = new Set();
+  const visible = studies.filter((study) => {
+    if (!study.imageUrl) return false;
+    const keys = [study.slug, (study.title || "").trim().toLowerCase()].filter(Boolean);
+    if (keys.some((key) => seen.has(key))) return false;
+    keys.forEach((key) => seen.add(key));
+    return true;
+  });
 
   return (
     <section className="bg-footer">

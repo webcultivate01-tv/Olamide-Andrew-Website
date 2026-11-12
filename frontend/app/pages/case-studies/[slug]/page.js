@@ -20,6 +20,36 @@ function pickOtherStudies(studies, currentSlug) {
   return ordered;
 }
 
+// The client's exact meta descriptions (all under 160 characters). Keyed by
+// the study's name rather than one fixed slug, because slugs are set in the
+// admin panel and can differ from the seed data (e.g. "atlas-civil-group").
+// A study is matched when its slug or title contains the key; any other study
+// falls back to its own summary.
+const SEO_DESCRIPTIONS = [
+  [
+    "skyline",
+    "Skyline Finance brand identity case study — a modern credit union concept built on community trust and clear digital experiences. By Olamide Andrew.",
+  ],
+  [
+    "atlas",
+    "Atlas Civil Group brand case study — repositioning an infrastructure firm as a dependable partner through strategy, identity and real-world brand applications.",
+  ],
+  [
+    "greenspark",
+    "GreenSpark Energy brand case study — a renewable energy concept making clean energy easier to understand through brand strategy, identity and advertising.",
+  ],
+  [
+    "northgate",
+    "Northgate Advisory brand case study — strategy, identity and activation for an operations consulting firm whose advisors have done the job. By Olamide Andrew.",
+  ],
+];
+
+function seoDescription(study) {
+  const haystack = `${study.slug} ${study.title}`.toLowerCase().replace(/[\s-]+/g, "");
+  const match = SEO_DESCRIPTIONS.find(([key]) => haystack.includes(key));
+  return match ? match[1] : study.summary;
+}
+
 export async function generateMetadata({ params }) {
   // params is a promise in this version of Next.js.
   const { slug } = await params;
@@ -33,8 +63,8 @@ export async function generateMetadata({ params }) {
   const image = mediaUrl(study.imageUrl);
 
   return pageMetadata({
-    title: `${study.title} — Brand Case Study | Olamide Andrew`,
-    description: study.summary,
+    title: `${study.title} — Brand Identity Design Case Study | Olamide Andrew`,
+    description: seoDescription(study),
     path: `/case-studies/${encodeURIComponent(study.slug)}`,
     type: "article",
     image: image

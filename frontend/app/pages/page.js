@@ -4,10 +4,11 @@ import BrandMessage from "@/components/home/brand-message";
 import HowIThink from "@/components/home/how-i-think";
 import MyServices from "@/components/home/my-services";
 import BrandWorkCta from "@/components/shared/brand-work-cta";
+import { publicFetch } from "@/lib/server-api";
 
-const TITLE = "Olamide Andrew | Strategic Brand Designer";
+const TITLE = "Strategic Brand Designer | Logo & Brand Identity — Olamide Andrew";
 const DESCRIPTION =
-  "Olamide Andrew is a Strategic Brand Designer helping founders and growing businesses with brand strategy, positioning and visual identity. Book a free brand audit.";
+  "Winnipeg strategic brand designer helping B2B businesses communicate their value clearly through brand strategy, identity and activation. Request a free audit.";
 
 export const metadata = pageMetadata({
   title: TITLE,
@@ -110,7 +111,8 @@ const homeStructuredData = {
   ],
 };
 
-export default function Home() {
+export default async function Home() {
+  const data = await publicFetch("/api/case-studies");
   return (
     <>
       <script
@@ -119,7 +121,7 @@ export default function Home() {
           __html: JSON.stringify(homeStructuredData).replace(/</g, "\\u003c"),
         }}
       />
-      <HomeHero />
+      <HomeHero studies={data?.caseStudies ?? []} />
       <BrandMessage />
       <HowIThink />
       <MyServices />

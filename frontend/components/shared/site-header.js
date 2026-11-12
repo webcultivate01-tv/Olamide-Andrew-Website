@@ -33,7 +33,7 @@ export default function SiteHeader() {
         >
           <Image
             src="/logo.png"
-            alt="Olamide"
+            alt="Olamide Andrew"
             width={64}
             height={64}
             loading="eager"

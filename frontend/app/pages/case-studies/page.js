@@ -4,9 +4,9 @@ import CaseStudyGrid from "@/components/case-studies/case-study-grid";
 import BrandWorkCta from "@/components/shared/brand-work-cta";
 
 export const metadata = pageMetadata({
-  title: "Brand Design Case Studies — Strategy, Identity & Activation | Olamide Andrew",
+  title: "Brand Identity Design Case Studies | Olamide Andrew",
   description:
-    "Every concept starts with a business problem, not a design brief. Explore selected brand strategy, visual identity and brand activation case studies by Olamide Andrew.",
+    "Brand case studies by Olamide Andrew — brand strategy, visual identity and activation projects, each starting from a business problem, not a design brief.",
   path: "/case-studies",
 });
 

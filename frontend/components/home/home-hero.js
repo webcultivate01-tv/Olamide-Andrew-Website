@@ -4,13 +4,40 @@ import Reveal from "@/components/shared/reveal";
 
 // The rail deliberately runs past the right edge of the page — the third tile
 // is meant to be cut off, signalling there is more to scroll to.
+//
+// Each tile links to its own case study. `slug` is the fallback address; when
+// the API returns a published study with the same title, its live slug wins,
+// so a renamed slug in the admin panel cannot leave a tile pointing nowhere.
 const WORK = [
-  { src: "/case-studies/hero1.png", alt: "Grocery retail brand rollout", title: "Grocery Retail Rollout" },
-  { src: "/case-studies/Skyline.png", alt: "ACG identity applied to haulage livery", title: "Skyline Finance" },
-  { src: "/case-studies/Patches.png", alt: "Embroidered brand merchandise", title: "Patches" },
+  {
+    src: "/case-studies/hero1.png",
+    alt: "Grocery retail brand rollout",
+    title: "Grocery Retail Rollout",
+    slug: null,
+  },
+  {
+    src: "/case-studies/Skyline.png",
+    alt: "Skyline Finance billboard mockup with the 'Built for what's next' campaign line.",
+    title: "Skyline Finance",
+    slug: "skyline-finance-brand-identity",
+  },
+  {
+    src: "/case-studies/Patches.png",
+    alt: "Embroidered brand merchandise",
+    title: "Patches",
+    slug: null,
+  },
 ];
 
-export default function HomeHero() {
+const norm = (value = "") => value.trim().toLowerCase();
+
+function tileHref(item, studies) {
+  const match = studies.find((study) => norm(study.title) === norm(item.title));
+  const slug = match?.slug ?? item.slug;
+  return slug ? `/case-studies/${slug}` : "/case-studies";
+}
+
+export default function HomeHero({ studies = [] }) {
   return (
     <section className="overflow-hidden bg-footer">
       <div className="mx-auto max-w-[1600px] px-5 pt-12 md:px-10 md:pt-16 lg:px-20 lg:pt-20">
@@ -70,8 +97,8 @@ export default function HomeHero() {
                 {/* Same card as the case-studies grid: 580x516 frame, notched
                     corner, rounded, title underneath. */}
                 <Link
-                  href="/case-studies"
-                  aria-label={`${item.title} — view brand case studies`}
+                  href={tileHref(item, studies)}
+                  aria-label={`${item.title} — view case study`}
                   className="group block"
                 >
                   <div className="clip-notch overflow-hidden rounded-[20px]">
@@ -80,7 +107,7 @@ export default function HomeHero() {
                         src={item.src}
                         alt={item.alt}
                         fill
-                        priority
+                        priority={index === 0}
                         sizes="(min-width: 1280px) 440px, (min-width: 1024px) 400px, (min-width: 640px) 380px, 100vw"
                         className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                       />

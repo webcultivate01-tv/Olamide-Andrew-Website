@@ -7,7 +7,7 @@ import InsightsCta from "@/components/insights/insights-cta";
 export const metadata = pageMetadata({
   title: "Insights on Brand Strategy & Visual Identity | Olamide Andrew",
   description:
-    "Shaping brands while driving purpose — notes on brand strategy, visual identity and the campaigns that turn ideas into results, from Strategic Brand Designer Olamide Andrew.",
+    "Notes on brand strategy and visual identity from Winnipeg brand designer Olamide Andrew — how clear brands are built, and how they help businesses grow.",
   path: "/insights",
 });
 

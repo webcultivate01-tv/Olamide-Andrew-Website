@@ -9,19 +9,19 @@ const SERVICES = [
     title: "Brand Strategy",
     body: "Create clarity before design. Before visuals come direction. Together, we'll define how your business should be perceived, what makes it different, and how your brand should communicate.",
     src: "/services/Service1.png",
-    alt: "Studio team working through a brand strategy session",
+    alt: "Brand strategy session for a small business branding project",
   },
   {
     title: "Visual Identity",
     body: "Turn strategy into a recognizable brand. A cohesive visual system designed to express your brand consistently and build trust across every interaction.",
     src: "/services/Service2.png",
-    alt: "Brand identity applied to a delivery vehicle livery",
+    alt: "Brand identity design applied to a delivery vehicle livery",
   },
   {
     title: "Brand Activation",
     body: "Bring your brand to life. Good campaigns don't just look good — they create momentum. I design visuals and creative systems that help brands show up consistently across every touchpoint.",
     src: "/services/Service3.png",
-    alt: "Creative team reviewing campaign artwork and colour swatches",
+    alt: "Brand activation campaign artwork and colour swatches under review",
   },
 ];
 
@@ -53,6 +53,10 @@ export default function MyServices() {
       <h2 className="font-headline text-center text-[2.25rem] leading-[1.05] tracking-[-0.01em] text-foreground uppercase md:text-[3.5rem] lg:text-[5.25rem]">
         My Services
       </h2>
+      <p className="mx-auto mt-5 max-w-[640px] text-center text-base leading-[1.8] text-black/70 md:text-lg">
+        Brand strategy, logo design and brand identity design for small
+        businesses and B2B companies, from a brand designer in Canada.
+      </p>
 
       {/* Each panel pins in turn and the next one rides up over it, so the
           stack needs one extra panel of runway at the end — otherwise the last

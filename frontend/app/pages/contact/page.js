@@ -3,9 +3,9 @@ import ContactHero from "@/components/contact/contact-hero";
 import LetsWorkCta from "@/components/contact/lets-work-cta";
 
 export const metadata = pageMetadata({
-  title: "Contact Olamide Andrew — Start Your Brand Project",
+  title: "Contact Olamide Andrew — Brand Designer in Canada",
   description:
-    "Building a new brand, repositioning an existing one, or exploring what's next? Get in touch with Olamide Andrew, Strategic Brand Designer, to start a conversation about your business.",
+    "Start your project with Olamide Andrew, Winnipeg strategic brand designer. Request a free Brand Clarity Audit, or ask about strategy, identity and activation.",
   path: "/contact",
 });
 
