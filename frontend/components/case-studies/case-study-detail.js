@@ -74,19 +74,16 @@ export default function CaseStudyDetail({ study, otherStudies = [] }) {
 
             {heroSrc ? (
               <Reveal variant="wipe" delay={180} className="mt-8 overflow-hidden">
-                {/* Fixed frame: its size never depends on the picture, and the
-                    picture is scaled to sit whole inside it. */}
-                <div className="relative aspect-[2540/1000] w-full">
-                  <Image
-                    src={heroSrc}
-                    alt={study.imageAlt || study.title || ""}
-                    fill
-                    loading="lazy"
-                    decoding="async"
-                    sizes="100vw"
-                    className="object-cover"
-                  />
-                </div>
+                <Image
+                  src={heroSrc}
+                  alt={study.imageAlt || study.title || ""}
+                  width={0}
+                  height={0}
+                  loading="lazy"
+                  decoding="async"
+                  sizes="100vw"
+                  className="block h-auto w-full"
+                />
               </Reveal>
             ) : null}
 
