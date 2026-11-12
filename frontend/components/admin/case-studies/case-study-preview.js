@@ -118,7 +118,7 @@ function ImageSlot({
         <img
           src={resolved}
           alt={alt || ""}
-          className="h-full w-full object-contain"
+          className="h-full w-full object-cover"
         />
       ) : (
         <button

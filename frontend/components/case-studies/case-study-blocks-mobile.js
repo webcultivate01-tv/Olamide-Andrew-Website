@@ -23,7 +23,7 @@ function ImageBlock({ block, delay = 0 }) {
 
   return (
     <Reveal variant="wipe" delay={delay} className="overflow-hidden">
-      <div className={`relative bg-black/[.05] ${FULL_FRAME}`}>
+      <div className={`relative ${FULL_FRAME}`}>
         <Image
           src={src}
           alt={block.imageAlt || ""}
@@ -31,7 +31,7 @@ function ImageBlock({ block, delay = 0 }) {
           loading="lazy"
           decoding="async"
           sizes="100vw"
-          className="object-contain"
+          className="object-cover"
         />
       </div>
     </Reveal>

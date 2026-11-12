@@ -7,14 +7,14 @@
 // the hero above it — the hero keeps its own full-bleed ratio, everything
 // after it reads as a slightly lower-profile column of images.
 export const FULL_FRAME =
-  "aspect-[3/2] w-full sm:aspect-[2/1] md:aspect-[16/5]";
+  "aspect-[2540/1000] w-full";
 
 // Two HALF blocks split that same width between them. Cut to the full
 // frame's own ratio each one would come out a thin strip, so a half block is
 // given back some height — still shorter than a full image, but tall enough
 // to hold a subject.
 export const HALF_FRAME =
-  "aspect-[8/9] w-full sm:aspect-[3/2]";
+  "aspect-[1892/1152] w-full";
 
 // The sliver of page left showing between two half blocks. Deliberately
 // slight — wide enough that the pair reads as two images rather than one
@@ -62,4 +62,4 @@ export function groupIntoRows(blocks) {
 // it fills its frame exactly (FULL is 16:5, HALF is 3:2). Shown in the admin
 // wherever an image is added; keep in step with FULL_FRAME / HALF_FRAME above.
 export const imageSizeFor = (layout) =>
-  layout === "HALF" ? "1200 × 800 px" : "1920 × 600 px";
+  layout === "HALF" ? "1892 × 1152 px" : "2540 × 1000 px";

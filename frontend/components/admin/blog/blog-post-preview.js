@@ -112,7 +112,7 @@ function ImageSlot({
     <div className={`group relative ${frame} overflow-hidden bg-black/[0.04]`}>
       {resolved ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={resolved} alt={alt || ""} className="h-full w-full object-contain" />
+        <img src={resolved} alt={alt || ""} className="h-full w-full object-cover" />
       ) : (
         <button
           type="button"

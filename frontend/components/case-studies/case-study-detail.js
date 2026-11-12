@@ -76,7 +76,7 @@ export default function CaseStudyDetail({ study, otherStudies = [] }) {
               <Reveal variant="wipe" delay={180} className="mt-8 overflow-hidden">
                 {/* Fixed frame: its size never depends on the picture, and the
                     picture is scaled to sit whole inside it. */}
-                <div className="relative aspect-[3/2] w-full bg-black/[.05]">
+                <div className="relative aspect-[2540/1000] w-full">
                   <Image
                     src={heroSrc}
                     alt={study.imageAlt || study.title || ""}
@@ -84,7 +84,7 @@ export default function CaseStudyDetail({ study, otherStudies = [] }) {
                     loading="lazy"
                     decoding="async"
                     sizes="100vw"
-                    className="object-contain"
+                    className="object-cover"
                   />
                 </div>
               </Reveal>

@@ -41,7 +41,7 @@ function ImageBlock({ block, delay = 0 }) {
       {/* A fixed frame per layout (full / half): whatever the admin uploads
           is scaled to fill it, so every block has the same predictable size
           and a section fits in one view. */}
-      <div className={`relative bg-black/[.05] ${frameFor(block.layout)}`}>
+      <div className={`relative ${frameFor(block.layout)}`}>
         <Image
           src={src}
           alt={block.imageAlt || ""}
@@ -49,7 +49,7 @@ function ImageBlock({ block, delay = 0 }) {
           loading="lazy"
           decoding="async"
           sizes={sizesFor(block.layout)}
-          className="object-contain"
+          className="object-cover"
         />
       </div>
     </Reveal>
